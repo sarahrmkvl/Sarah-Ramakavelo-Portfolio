@@ -1,3 +1,5 @@
+
+
 # Nagare - Personal Portfolio Website
 
 <p align="center">
@@ -40,7 +42,7 @@ We're currently working on **refactoring** this template for better performance 
 1.  Clone this repository:
 
     ```bash
-    git clone https://github.com/yourusername/nagare.git
+    git clone https://github.com/angine04/nagare.git
     cd nagare
     ```
 
