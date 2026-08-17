@@ -44,6 +44,9 @@
     cursor: pointer;
     z-index: 10;
     transition: opacity 0.5s ease-out;
+    isolation: isolate;
+    backface-visibility: hidden;
+    will-change: opacity;
   }
 
   .indicator-content {
@@ -51,11 +54,15 @@
     align-items: center;
     gap: 0em;
     animation: float 3s ease-in-out infinite;
+    backface-visibility: hidden;
+    will-change: transform;
   }
 
   .scroll-indicator svg {
     display: block;
     margin-bottom: 2px;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .scroll-indicator.visible {

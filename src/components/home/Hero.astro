@@ -1,35 +1,26 @@
 ---
-// Component: src/components/home/Hero.astro
+import { languageAttributes, profile } from "../../data/profile";
 ---
 
 <section class="hero-section">
   <div class="hero-text">
-    <div class="greeting">Hello, This is</div>
-    <div class="hero-name">Nagare</div>
-    <div class="hero-description">
-      A portfolio website template, <br />
-      featuring <em>simplicity</em>, <em>beauty</em> and <em>clarity</em>.
+    <div class="greeting" {...languageAttributes({ fr: profile.positioning.fr.eyebrow.replace("Portfolio · ", ""), en: profile.positioning.en.eyebrow.replace("Portfolio · ", "") })}>{profile.positioning.fr.eyebrow.replace("Portfolio · ", "")}</div>
+    <div class="hero-name">{profile.identity.fullName}</div>
+    <div class="hero-description" {...languageAttributes({ fr: `${profile.positioning.fr.headline} ${profile.positioning.fr.summary}`, en: `${profile.positioning.en.headline} ${profile.positioning.en.summary}` })}>
+      {profile.positioning.fr.headline} {profile.positioning.fr.summary}
     </div>
   </div>
 </section>
 
 <style>
-  @keyframes unblurFadeIn {
+  @keyframes heroFadeIn {
     0% {
-      filter: blur(32px);
       opacity: 0;
-    }
-    10% {
-      filter: blur(28px);
-      opacity: 0.1;
-    }
-    50% {
-      filter: blur(4px);
-      opacity: 0.9;
+      transform: translateY(14px);
     }
     100% {
-      filter: blur(0px);
       opacity: 0.9;
+      transform: translateY(0);
     }
   }
 
@@ -43,7 +34,7 @@
   }
 
   .hero-text {
-    max-width: 80%;
+    max-width: min(90%, 1100px);
     transform: translateY(-5vh);
   }
 
@@ -54,15 +45,15 @@
     line-height: 1;
     opacity: 0;
     margin-left: 10px;
-    animation: unblurFadeIn 2s ease-out forwards;
+    animation: heroFadeIn 1.2s ease-out forwards;
   }
 
   .hero-name {
-    font-size: clamp(3rem, 4rem + 4vw, 8rem);
+    font-size: clamp(3rem, 4rem + 3vw, 7rem);
     font-weight: 400;
     line-height: 1;
     opacity: 0;
-    animation: unblurFadeIn 2s ease-out 0.5s forwards;
+    animation: heroFadeIn 1.2s ease-out 0.2s forwards;
   }
 
   .hero-description {
@@ -73,7 +64,7 @@
     margin-top: 2em;
     margin-left: 10px;
     opacity: 0;
-    animation: unblurFadeIn 2s ease-out 0.8s forwards;
+    animation: heroFadeIn 1.2s ease-out 0.4s forwards;
   }
 
   .hero-description em {

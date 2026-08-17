@@ -1,0 +1,380 @@
+{
+  "schemaVersion": "1.0",
+  "profileType": "public-recruiter-portfolio",
+  "lastUpdated": "2026-08-17",
+  "identity": {
+    "fullName": "Sarah Ramakavelo",
+    "initials": "SR",
+    "basedIn": ["Paris", "Nice"],
+    "nationalityOrOrigins": ["France", "Madagascar"],
+    "photo": null
+  },
+  "contact": {
+    "email": "sarah.ramakavelo@edhec.com",
+    "linkedin": "https://www.linkedin.com/in/sarah-ramakavelo-60668a326/",
+    "github": "https://github.com/sarahrmkvl",
+    "cvUrl": "/documents/CV.pdf"
+  },
+  "positioning": {
+    "fr": {
+      "eyebrow": "Portfolio · Finance & Markets",
+      "headline": "Je relie les marchés, les clients et la donnée.",
+      "summary": "Étudiante en finance à l’EDHEC et Sales Assistant en Prime Services chez Société Générale CIB. J’explore comment le risque, la technologie et l’exécution façonnent les décisions d’investissement.",
+      "availability": "Ouverte aux opportunités internationales en Global Markets."
+    },
+    "en": {
+      "eyebrow": "Portfolio · Finance & Markets",
+      "headline": "I connect markets, clients and data.",
+      "summary": "Finance student at EDHEC and Prime Services Sales Assistant at Société Générale CIB. I explore how risk, technology and execution shape investment decisions.",
+      "availability": "Open to international opportunities in Global Markets."
+    }
+  },
+  "highlights": [
+    {
+      "value": "€15bn+",
+      "label": {
+        "fr": "Portefeuilles institutionnels pricés",
+        "en": "Institutional portfolios priced"
+      }
+    },
+    {
+      "value": "50+",
+      "label": {
+        "fr": "Clients institutionnels couverts",
+        "en": "Institutional clients covered"
+      }
+    },
+    {
+      "value": "3",
+      "label": {
+        "fr": "Expériences en marchés et banque",
+        "en": "Experiences across markets and banking"
+      }
+    },
+    {
+      "value": "C1",
+      "label": {
+        "fr": "Cambridge Advanced English",
+        "en": "Cambridge Advanced English"
+      }
+    }
+  ],
+  "story": {
+    "fr": {
+      "eyebrow": "Quelques pages avant le CV",
+      "title": "Ce qui me construit",
+      "subtitle": "Les lieux, les disciplines et les défis qui ont façonné mon parcours."
+    },
+    "en": {
+      "eyebrow": "A few pages before the résumé",
+      "title": "What shaped me",
+      "subtitle": "The places, disciplines and challenges that shaped my journey."
+    },
+    "cards": [
+      {
+        "id": "madagascar",
+        "icon": "🇲🇬",
+        "theme": "clay",
+        "kicker": { "fr": "Racines", "en": "Roots" },
+        "title": { "fr": "Madagascar", "en": "Madagascar" },
+        "text": {
+          "fr": "L’île rouge · une identité ouverte sur le monde",
+          "en": "The red island · an identity open to the world"
+        }
+      },
+      {
+        "id": "nice",
+        "icon": "NCE",
+        "theme": "sea",
+        "kicker": { "fr": "Point d’ancrage", "en": "Home base" },
+        "title": { "fr": "Nice", "en": "Nice" },
+        "text": {
+          "fr": "Mer · soleil · études · entraînements",
+          "en": "Sea · sun · studies · training"
+        }
+      },
+      {
+        "id": "triathlon",
+        "icon": "70.3",
+        "theme": "sport",
+        "kicker": { "fr": "Endurance", "en": "Endurance" },
+        "title": { "fr": "Natation · Vélo · Course", "en": "Swim · Bike · Run" },
+        "text": {
+          "fr": "4 à 6 séances par semaine · avancer avec constance",
+          "en": "4 to 6 sessions a week · moving with consistency"
+        }
+      },
+      {
+        "id": "geneva",
+        "icon": "△ ≈",
+        "theme": "alpine",
+        "kicker": { "fr": "Étape suisse", "en": "Swiss chapter" },
+        "title": { "fr": "Genève", "en": "Geneva" },
+        "text": {
+          "fr": "Le lac · les montagnes · Syz Bank",
+          "en": "The lake · the mountains · Syz Bank"
+        }
+      },
+      {
+        "id": "versailles",
+        "icon": "CPGE",
+        "theme": "ink",
+        "kicker": { "fr": "2022 — 2024", "en": "2022 — 2024" },
+        "title": { "fr": "Versailles", "en": "Versailles" },
+        "text": {
+          "fr": "Notre-Dame du Grandchamp · exigence et méthode",
+          "en": "Notre-Dame du Grandchamp · rigour and method"
+        }
+      },
+      {
+        "id": "competition",
+        "icon": "1·2·3",
+        "theme": "podium",
+        "kicker": { "fr": "Compétition", "en": "Competition" },
+        "title": { "fr": "Podiums", "en": "Podiums" },
+        "text": {
+          "fr": "Le résultat visible d’un travail invisible",
+          "en": "The visible result of invisible work"
+        }
+      },
+      {
+        "id": "public-speaking",
+        "icon": "“ ”",
+        "theme": "voice",
+        "kicker": { "fr": "Éloquence · MUN", "en": "Public speaking · MUN" },
+        "title": { "fr": "Prendre la parole", "en": "Finding my voice" },
+        "text": {
+          "fr": "Défendre une idée · écouter · convaincre",
+          "en": "Defend an idea · listen · persuade"
+        }
+      },
+      {
+        "id": "travel",
+        "icon": "↗",
+        "theme": "travel",
+        "kicker": { "fr": "Carnet de route", "en": "Travel notes" },
+        "title": { "fr": "🇲🇬 🇫🇷 🇨🇭", "en": "🇲🇬 🇫🇷 🇨🇭" },
+        "text": {
+          "fr": "Des lieux qui deviennent des perspectives",
+          "en": "Places that become perspectives"
+        }
+      }
+    ]
+  },
+  "experience": [
+    {
+      "id": "societe-generale-cib",
+      "company": "Société Générale CIB",
+      "role": {
+        "fr": "Sales Assistant · Prime Services",
+        "en": "Sales Assistant · Prime Services"
+      },
+      "location": "Paris, France",
+      "startDate": "2026-07",
+      "endDate": null,
+      "current": true,
+      "summary": {
+        "fr": "Prime Brokerage, exécution, clearing et financement pour une clientèle institutionnelle internationale.",
+        "en": "Prime Brokerage, execution, clearing and financing for international institutional clients."
+      },
+      "bullets": {
+        "fr": [
+          "Pricing de plus de 15 milliards d’euros de portefeuilles institutionnels avec analyses d’Initial Margin, de VaR et de stress tests.",
+          "Pilotage d’une migration de comptes ETD et OTC vers BlackRock Aladdin, des jalons jusqu’au Go-Live.",
+          "Contribution à l’onboarding de bout en bout : KYC, due diligence, lignes de crédit et validation des commissions.",
+          "Préparation de présentations clients sur l’OTC Clearing, le Repo Clearing et le financement."
+        ],
+        "en": [
+          "Priced more than €15 billion of institutional portfolios using Initial Margin, VaR and stress-test analysis.",
+          "Led an ETD and OTC account migration to BlackRock Aladdin, from milestones through Go-Live.",
+          "Contributed to end-to-end onboarding: KYC, due diligence, credit lines and commission validation.",
+          "Prepared client presentations on OTC Clearing, Repo Clearing and financing."
+        ]
+      },
+      "tags": ["Prime Brokerage", "ETD", "OTC", "Risk", "Clearing", "Client Coverage"]
+    },
+    {
+      "id": "syz-bank",
+      "company": "Syz Bank",
+      "role": {
+        "fr": "Digital Assets & Business Transformation",
+        "en": "Digital Assets & Business Transformation"
+      },
+      "location": "Geneva, Switzerland",
+      "startDate": "2025-07",
+      "endDate": "2025-08",
+      "current": false,
+      "summary": {
+        "fr": "Immersion dans la transformation du Front Office et l’écosystème des actifs numériques en banque privée.",
+        "en": "Immersion in Front Office transformation and the digital-assets ecosystem within private banking."
+      },
+      "bullets": {
+        "fr": [
+          "Analyse de cas d’usage digitaux applicables au Front Office.",
+          "Étude des enjeux opérationnels, réglementaires et clients liés aux actifs numériques.",
+          "Travail dans un environnement bancaire international et entrepreneurial."
+        ],
+        "en": [
+          "Assessed digital use cases applicable to the Front Office.",
+          "Studied the operational, regulatory and client questions raised by digital assets.",
+          "Worked in an international and entrepreneurial banking environment."
+        ]
+      },
+      "tags": ["Digital Assets", "Front Office", "Business Transformation"]
+    },
+    {
+      "id": "hsbc-discovery",
+      "company": "HSBC Continental Europe",
+      "role": {
+        "fr": "Global Banking & Markets · Discovery Week",
+        "en": "Global Banking & Markets · Discovery Week"
+      },
+      "location": "Paris, France",
+      "startDate": "2025-05",
+      "endDate": "2025-05",
+      "current": false,
+      "summary": {
+        "fr": "Découverte des interactions entre sales, trading, recherche et clients institutionnels.",
+        "en": "Exploration of the interactions between sales, trading, research and institutional clients."
+      },
+      "bullets": {
+        "fr": [
+          "Immersion au sein de desks Global Markets.",
+          "Observation du passage d’une vue macro à une idée de marché puis à son exécution.",
+          "Compréhension du rôle de la communication client dans un environnement très réactif."
+        ],
+        "en": [
+          "Exposure to Global Markets desks.",
+          "Observed how a macro view becomes a market idea and then an execution.",
+          "Developed an understanding of client communication in a fast-moving environment."
+        ]
+      },
+      "tags": ["Global Markets", "Sales & Trading", "Institutional Clients"]
+    }
+  ],
+  "education": [
+    {
+      "school": "EDHEC Business School",
+      "location": "Nice, France",
+      "degree": {
+        "fr": "Programme Grande École · Parcours Finance",
+        "en": "Master in Management · Finance Track"
+      },
+      "startYear": 2024,
+      "endYear": 2028,
+      "coursework": [
+        "Econometrics",
+        "Fixed Income",
+        "Derivatives",
+        "Financial Modelling",
+        "Portfolio Construction"
+      ],
+      "courseworkFr": [
+        "Économétrie",
+        "Taux",
+        "Produits dérivés",
+        "Modélisation financière",
+        "Construction de portefeuille"
+      ]
+    },
+    {
+      "school": "Notre-Dame du Grandchamp",
+      "location": "Versailles, France",
+      "degree": {
+        "fr": "Classe préparatoire aux Grandes Écoles",
+        "en": "Preparatory programme for French Grandes Écoles"
+      },
+      "startYear": 2022,
+      "endYear": 2024,
+      "coursework": [],
+      "courseworkFr": []
+    }
+  ],
+  "skills": {
+    "finance": [
+      "Prime Brokerage",
+      "Listed and OTC Derivatives",
+      "Initial Margin",
+      "Value at Risk",
+      "Stress Testing",
+      "OTC Clearing",
+      "Repo Clearing",
+      "Portfolio Construction",
+      "Market Analysis"
+    ],
+    "technical": [
+      "Python",
+      "Pandas",
+      "NumPy",
+      "Matplotlib",
+      "Seaborn",
+      "Plotly",
+      "Excel",
+      "VBA",
+      "PowerPoint",
+      "Bloomberg",
+      "LCH",
+      "IRIS"
+    ],
+    "languages": [
+      { "language": "French", "level": "Native" },
+      { "language": "English", "level": "C1 Advanced · Cambridge" },
+      { "language": "German", "level": "Basic" }
+    ]
+  },
+  "activities": [
+    {
+      "id": "triathlon",
+      "title": "Triathlon",
+      "subtitle": {
+        "fr": "IRONMAN 70.3 · 4 à 6 séances par semaine",
+        "en": "IRONMAN 70.3 · 4 to 6 sessions per week"
+      },
+      "description": {
+        "fr": "Préparation longue distance, triathlons olympiques et semi-marathons. Le sport développe la discipline, la constance et le calme sous pression.",
+        "en": "Long-distance training, Olympic-distance triathlons and half-marathons. Sport develops discipline, consistency and calm under pressure."
+      },
+      "organisations": ["Nice Triathlon Club", "EDHEC Triathlon Club"]
+    },
+    {
+      "id": "model-united-nations",
+      "title": "Model United Nations",
+      "subtitle": {
+        "fr": "Débat · négociation · géopolitique",
+        "en": "Debate · negotiation · geopolitics"
+      },
+      "description": {
+        "fr": "Argumenter avec précision, écouter une position opposée et construire un compromis sous contrainte de temps.",
+        "en": "Argue precisely, listen to opposing positions and build compromise under time pressure."
+      }
+    },
+    {
+      "id": "tutoring",
+      "title": {
+        "fr": "Tutorat solidaire",
+        "en": "Community tutoring"
+      },
+      "subtitle": {
+        "fr": "Mathématiques · anglais · transmission",
+        "en": "Mathematics · English · mentoring"
+      },
+      "description": {
+        "fr": "Accompagnement de jeunes défavorisés en adaptant les explications et en suivant leurs progrès dans la durée.",
+        "en": "Supported disadvantaged students by adapting explanations and tracking progress over time."
+      }
+    }
+  ],
+  "marketNotes": {
+    "items": [],
+    "notice": {
+      "fr": "À alimenter avec des sources officielles récentes. Ces notes reflètent une lecture personnelle et ne constituent pas un conseil d’investissement.",
+      "en": "Populate with recent official sources. These notes reflect a personal view and are not investment advice."
+    }
+  },
+  "navigation": [
+    { "id": "experience", "label": { "fr": "Expérience", "en": "Experience" } },
+    { "id": "projects", "label": { "fr": "Projets", "en": "Projects" } },
+    { "id": "market-notes", "label": { "fr": "Market Notes", "en": "Market Notes" } },
+    { "id": "beyond", "label": { "fr": "Au-delà du CV", "en": "Beyond the CV" } }
+  ]
+}

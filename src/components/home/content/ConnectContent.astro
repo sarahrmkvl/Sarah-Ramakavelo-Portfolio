@@ -1,56 +1,41 @@
 ---
 import Button from "../../common/Button.astro";
 import { Icon } from "astro-icon/components";
+import { profile, sitePath } from "../../../data/profile";
 
-const contactUrl = "/contact";
+const contactUrl = sitePath("/contact");
 ---
 
-<h2 slot="title" class="about-title scroll-target-title">Keep in touch</h2>
+<h2 slot="title" class="about-title scroll-target-title" data-i18n-fr="Échangeons" data-i18n-en="Let’s connect">Let’s connect</h2>
 
 <div class="about-content scroll-target-content">
-  <p>
-    This is the contact section where you can share your professional interests
-    and how others can reach you. Customize this text to describe what you're
-    looking for, whether it's job opportunities, collaborations, or networking.
-  </p>
-  <p>
-    Below are some example contact links. Replace them with your own social
-    media profiles, email, and other relevant contact information.
+  <p data-i18n-fr={profile.positioning.fr.availability} data-i18n-en={profile.positioning.en.availability}>{profile.positioning.fr.availability}</p>
+  <p data-i18n-fr="Basée entre Paris et Nice, avec des racines en France et à Madagascar." data-i18n-en="Based between Paris and Nice, with roots in France and Madagascar.">
+    Based between Paris and Nice, with roots in France and Madagascar.
   </p>
 
-  <div class="connect-icon-links">
-    <a
-      href="mailto:example@email.com"
-      title="Send me an email"
-      aria-label="Email"
-    >
-      <Icon name="ri:mail-line" size={24} aria-hidden="true" />
-    </a>
-    <a
-      href="https://github.com/example"
-      target="_blank"
-      rel="noopener noreferrer"
-      title="View my GitHub profile"
-      aria-label="GitHub"
-    >
-      <Icon name="ri:github-line" size={22} aria-hidden="true" />
-    </a>
-    <a
-      href="https://linkedin.com/in/example"
-      target="_blank"
-      rel="noopener noreferrer"
-      title="View my LinkedIn profile"
-      aria-label="LinkedIn"
-    >
-      <Icon name="ri:linkedin-box-line" size={22} aria-hidden="true" />
-    </a>
+  <div class="contact-actions">
+    {profile.contact.email && <a href={`mailto:${profile.contact.email}`}>
+      <Icon name="ri:mail-line" size={20} aria-hidden="true" />
+      <span>Email</span>
+    </a>}
+    {profile.contact.linkedin && <a href={profile.contact.linkedin} target="_blank" rel="noopener noreferrer">
+      <Icon name="ri:linkedin-box-line" size={20} aria-hidden="true" />
+      <span>LinkedIn</span>
+    </a>}
+    {profile.contact.github && <a href={profile.contact.github} target="_blank" rel="noopener noreferrer">
+      <Icon name="ri:github-line" size={20} aria-hidden="true" />
+      <span>GitHub</span>
+    </a>}
   </div>
 
   <div class="button-group">
     <Button
       class="button"
       href={contactUrl}
-      text="See All Contact Info"
+      text="Contact & availability"
+      data-i18n-fr="Contact & disponibilités"
+      data-i18n-en="Contact & availability"
       wrapperClass="cta-link"
     />
   </div>
@@ -63,26 +48,37 @@ const contactUrl = "/contact";
     color: var(--theme-text);
   }
 
-  .connect-icon-links {
+  .contact-actions {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 1.8rem;
+    gap: 0.75rem;
     margin-bottom: 2.5rem;
   }
 
-  .connect-icon-links a {
-    color: var(--theme-icon-color);
-    opacity: 0.8;
+  .contact-actions a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 0.85rem;
+    border: 1px solid var(--button-border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: var(--font-family-sans);
+    font-size: 0.82rem;
     transition:
-      opacity 0.2s ease,
-      color 0.2s ease;
-    display: inline-block;
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
   }
 
-  .connect-icon-links a:hover,
-  .connect-icon-links a:focus {
-    opacity: 1;
-    outline: none;
+  .contact-actions a:hover,
+  .contact-actions a:focus-visible {
+    color: var(--text-color);
+    border-color: var(--button-border-hover-color);
+    background: var(--button-hover-bg);
+    text-decoration: none;
   }
 
   .button-group {

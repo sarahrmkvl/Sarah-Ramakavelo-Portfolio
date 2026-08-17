@@ -2,7 +2,7 @@
 
 ---
 
-<div id="dynamic-background-container" transition:persist={true}>
+<div id="dynamic-background-container">
   <svg id="dynamic-background-svg" width="100%" height="100%"></svg>
 </div>
 
@@ -70,6 +70,8 @@
     }
 
     let blobs: BlobShape[] = [];
+    let animationFrameId: number | null = null;
+    let isDisposed = false;
     let mousePos: Vector | null = null;
     let svgGroup: SVGGElement | null = null;
     const targetOffset: Vector = { x: 0, y: 0 };
@@ -260,7 +262,22 @@
     function initBlobs() {
       blobs = [];
       svgContainer!.innerHTML = "";
+
+      const defs = document.createElementNS(svgNS, "defs");
+      const blurFilter = document.createElementNS(svgNS, "filter");
+      blurFilter.setAttribute("id", "background-soft-blur");
+      blurFilter.setAttribute("x", "-25%");
+      blurFilter.setAttribute("y", "-25%");
+      blurFilter.setAttribute("width", "150%");
+      blurFilter.setAttribute("height", "150%");
+      const gaussianBlur = document.createElementNS(svgNS, "feGaussianBlur");
+      gaussianBlur.setAttribute("stdDeviation", isMobileDevice ? "28" : "52");
+      blurFilter.appendChild(gaussianBlur);
+      defs.appendChild(blurFilter);
+      svgContainer!.appendChild(defs);
+
       svgGroup = document.createElementNS(svgNS, "g");
+      svgGroup.setAttribute("filter", "url(#background-soft-blur)");
       svgContainer!.appendChild(svgGroup);
 
       const { width: containerWidth, height: containerHeight } =
@@ -555,7 +572,8 @@
     }
 
     function animate(timestamp: number) {
-      requestAnimationFrame(animate);
+      if (isDisposed) return;
+      animationFrameId = requestAnimationFrame(animate);
 
       const elapsedSinceLastExecution = timestamp - lastLogicExecutionTime;
       if (elapsedSinceLastExecution < targetFrameInterval) {
@@ -674,9 +692,14 @@
     });
 
     initBlobs();
-    requestAnimationFrame(animate);
+    animationFrameId = requestAnimationFrame(animate);
 
     function cleanup() {
+      isDisposed = true;
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
       if (mouseThrottleTimeout) {
         cancelAnimationFrame(mouseThrottleTimeout);
         mouseThrottleTimeout = null;
@@ -695,42 +718,23 @@
 <style>
   #dynamic-background-container {
     position: fixed;
+    pointer-events: none;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1;
-    filter: blur(30px);
+    z-index: 0;
     opacity: var(--dynamic-bg-opacity);
-    transition: filter 0.3s ease;
-  }
-
-  @media (min-width: 768px) {
-    #dynamic-background-container {
-      filter: blur(50px);
-    }
-  }
-
-  @media (min-width: 1024px) {
-    #dynamic-background-container {
-      filter: blur(80px);
-    }
+    overflow: hidden;
+    contain: strict;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform;
   }
 
   #dynamic-background-svg {
     display: block;
-  }
-
-  @keyframes hue-rotate-anim {
-    from {
-      filter: hue-rotate(0deg);
-    }
-    to {
-      filter: hue-rotate(360deg);
-    }
-  }
-
-  #dynamic-background-svg.css-hue-shift-active {
-    animation: hue-rotate-anim 50s linear infinite;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 </style>

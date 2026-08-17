@@ -4,6 +4,7 @@ import {
   type TimelineEventItem,
 } from "../../../data/timelineEvents";
 import Button from "../../common/Button.astro";
+import { sitePath } from "../../../data/profile";
 const numberOfHighlightsToShow = 3;
 
 const allHighlights: TimelineEventItem[] = allTimelineEvents.filter(
@@ -17,7 +18,7 @@ const highlightsToShow: TimelineEventItem[] = allHighlights.slice(
   numberOfHighlightsToShow
 );
 
-const timelineUrl = "/timeline";
+const timelineUrl = sitePath("/timeline");
 function formatEventDate(dateStr: string): string {
   if (!dateStr) return "";
   try {
@@ -36,7 +37,7 @@ function formatEventDate(dateStr: string): string {
 ---
 
 <h2 slot="title" class="about-title scroll-target-title">
-  Highlights & Updates
+  Experience
 </h2>
 
 <div class="about-content scroll-target-content">
@@ -51,15 +52,19 @@ function formatEventDate(dateStr: string): string {
               </time>
             </div>
             <div class="highlight-body">
-              <h4 class="highlight-title">{event.title}</h4>
+              <h4 class="highlight-title" data-i18n-fr={event.title} data-i18n-en={event.titleEn}>{event.title}</h4>
               {event.highlightSummary ? (
                 <p
                   class="highlight-summary"
+                  data-i18n-fr={event.highlightSummary}
+                  data-i18n-en={event.highlightSummaryEn}
                   set:html={event.highlightSummary}
                 />
               ) : event.description ? (
                 <div
                   class="highlight-description"
+                  data-i18n-html-fr={event.description}
+                  data-i18n-html-en={event.descriptionEn}
                   set:html={event.description}
                 />
               ) : null}
@@ -76,7 +81,7 @@ function formatEventDate(dateStr: string): string {
     <Button
       class="button"
       href={timelineUrl}
-      text="Explore My Journey"
+      text="Explore my journey"
       wrapperClass="cta-link"
     />
   </div>

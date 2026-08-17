@@ -1,0 +1,108 @@
+<div class="language-switcher" role="group" aria-label="Choix de la langue">
+  <button type="button" data-language="fr" aria-pressed="true">FR</button>
+  <button type="button" data-language="en" aria-pressed="false">EN</button>
+</div>
+
+<style>
+  .language-switcher { display:grid; grid-template-columns:1fr 1fr; width:4.4rem; height:2rem; padding:2px; border:1px solid var(--button-border-color); border-radius:6px; }
+  button { padding:0; border:0; border-radius:4px; color:var(--text-muted); background:transparent; font-family:var(--font-family-sans); font-size:.68rem; font-weight:600; cursor:pointer; }
+  button[aria-pressed="true"] { color:var(--text-color); background:var(--button-hover-bg); }
+</style>
+
+<script>
+  type Language = "fr" | "en";
+
+  const interfaceTranslations = [
+    { fr: "À propos", en: "About" },
+    { fr: "Projets", en: "Projects" },
+    { fr: "Expérience", en: "Experience" },
+    { fr: "Contact", en: "Contact" },
+    { fr: "CV", en: "Résumé" },
+    { fr: "Les marchés, avec perspective", en: "Markets, with perspective" },
+    { fr: "Voir mon CV", en: "View My Résumé" },
+    { fr: "Télécharger le CV", en: "Download résumé" },
+    { fr: "Analyses sélectionnées", en: "Selected analysis" },
+    { fr: "Voir tous les projets", en: "Explore all projects" },
+    { fr: "Découvrir mon parcours", en: "Explore my journey" },
+    { fr: "Échangeons", en: "Let’s connect" },
+    { fr: "Contact & disponibilités", en: "Contact & availability" },
+    { fr: "Parcours", en: "Journey" },
+    { fr: "Profil", en: "Profile" },
+    { fr: "Formation", en: "Education" },
+    { fr: "Compétences", en: "Skills" },
+    { fr: "Langues", en: "Languages" },
+    { fr: "Au-delà du CV", en: "Beyond the CV" },
+    { fr: "Au-delà", en: "Beyond" },
+    { fr: "Voir le dépôt", en: "View repository" },
+    { fr: "Accueil", en: "Home" },
+    { fr: "Navigation", en: "Links" },
+  ];
+
+  const originalText = new WeakMap<Text, string>();
+  let languageObserver: MutationObserver | null = null;
+
+  function translatedValue(value: string, language: Language) {
+    const normalized = value.replace(/\s+/g, " ").trim();
+    const match = interfaceTranslations.find((item) => item.fr === normalized || item.en === normalized);
+    if (!match) return value;
+    const leading = value.match(/^\s*/)?.[0] ?? "";
+    const trailing = value.match(/\s*$/)?.[0] ?? "";
+    return `${leading}${match[language]}${trailing}`;
+  }
+
+  function translatePage(language: Language) {
+    document.querySelectorAll<HTMLElement>("[data-i18n-html-fr][data-i18n-html-en]").forEach((element) => {
+      const value = language === "fr" ? element.dataset.i18nHtmlFr : element.dataset.i18nHtmlEn;
+      if (value !== undefined && element.innerHTML !== value) element.innerHTML = value;
+    });
+
+    document.querySelectorAll<HTMLElement>("[data-i18n-fr][data-i18n-en]").forEach((element) => {
+      const value = language === "fr" ? element.dataset.i18nFr : element.dataset.i18nEn;
+      if (value !== undefined && element.textContent !== value) element.textContent = value;
+    });
+
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        return parent?.closest("script, style, [data-i18n-fr][data-i18n-en], [data-i18n-html-fr][data-i18n-html-en]") || !node.nodeValue?.trim()
+          ? NodeFilter.FILTER_REJECT
+          : NodeFilter.FILTER_ACCEPT;
+      },
+    });
+
+    const nodes: Text[] = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+    nodes.forEach((node) => {
+      const source = originalText.get(node) ?? node.nodeValue ?? "";
+      originalText.set(node, source);
+      const next = translatedValue(source, language);
+      if (node.nodeValue !== next) node.nodeValue = next;
+    });
+
+    document.documentElement.lang = language;
+    document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button.dataset.language === language));
+    });
+  }
+
+  function setupLanguageSwitcher() {
+    languageObserver?.disconnect();
+    const currentLanguage: Language = localStorage.getItem("portfolio-language") === "en" ? "en" : "fr";
+    translatePage(currentLanguage);
+
+    document.querySelectorAll<HTMLButtonElement>("[data-language]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const language: Language = button.dataset.language === "en" ? "en" : "fr";
+        localStorage.setItem("portfolio-language", language);
+        translatePage(language);
+      });
+    });
+
+    languageObserver = new MutationObserver(() => {
+      translatePage(localStorage.getItem("portfolio-language") === "en" ? "en" : "fr");
+    });
+    languageObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
+  document.addEventListener("astro:page-load", setupLanguageSwitcher);
+</script>

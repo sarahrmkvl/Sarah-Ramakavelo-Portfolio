@@ -4,29 +4,36 @@ import { Icon } from "astro-icon/components";
 interface Props {
   id?: string;
   title: string;
+  titleFr?: string;
   imageSrc?: string;
   imageAlt?: string;
   timeframe?: string;
+  timeframeFr?: string;
   projectUrl?: string;
   githubUrl?: string;
   githubRepos?: { title?: string; url: string }[];
   techStack?: string[];
+  detailUrl: string;
 }
 
 const {
   id,
   title,
+  titleFr = title,
   imageSrc,
   imageAlt = "Project thumbnail",
   timeframe,
+  timeframeFr = timeframe,
   projectUrl,
   githubUrl,
   githubRepos,
   techStack = [],
+  detailUrl,
 } = Astro.props;
 ---
 
 <article id={id} class="project-card">
+  <a class="project-detail-link" href={detailUrl} aria-label={`View ${title}`}><span class="sr-only">{title}</span></a>
   {
     imageSrc && (
       <div class="project-image-wrapper">
@@ -41,11 +48,11 @@ const {
   }
   <div class="project-content">
     <header class="project-header">
-      <h3 class="project-title">{title}</h3>
+      <h3 class="project-title" data-i18n-fr={titleFr} data-i18n-en={title}>{titleFr}</h3>
     </header>
 
     <div class="project-metadata">
-      {timeframe && <span class="project-timeframe">{timeframe}</span>}
+      {timeframe && <span class="project-timeframe" data-i18n-fr={timeframeFr} data-i18n-en={timeframe}>{timeframeFr}</span>}
       {
         techStack.length > 0 && (
           <div class="project-tech-stack">
@@ -102,6 +109,7 @@ const {
 
 <style>
   .project-card {
+    position: relative;
     border-radius: 8px;
     border: 1px solid var(--card-border-color);
     overflow: hidden;
@@ -111,26 +119,45 @@ const {
     margin-bottom: 3rem;
 
     opacity: 0;
-    filter: blur(5px);
     transform: translateY(20px) translateZ(0);
-    will-change: opacity, filter, transform, border-color, backdrop-filter;
+    will-change: opacity, transform, border-color;
     transition:
       opacity 0.8s ease-out,
-      filter 0.8s ease-out,
       transform 0.8s ease-out,
-      border-color 0.2s ease,
-      backdrop-filter 0.2s ease;
+      border-color 0.2s ease;
   }
 
   .project-card.visible {
     opacity: 1;
-    filter: blur(0px);
     transform: translateY(0) translateZ(0);
   }
 
   .project-card:hover {
     border-color: var(--card-border-hover-color);
-    backdrop-filter: brightness(1.1) saturate(1.1);
+  }
+
+  .project-detail-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    text-decoration: none;
+  }
+
+  .project-links {
+    position: relative;
+    z-index: 2;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
 
   .project-image-wrapper {

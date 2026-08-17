@@ -1,0 +1,101 @@
+---
+import { languageAttributes, profile } from "../../../data/profile";
+---
+
+<h2 slot="title" class="about-title scroll-target-title" data-i18n-fr="Formation" data-i18n-en="Education">Formation</h2>
+
+<div class="education-list scroll-target-content">
+  {profile.education.map((item) => {
+    const courseworkFr = item.courseworkFr ?? item.coursework;
+    return (
+      <article class="education-entry">
+        <div class="entry-main">
+          <p class="period">{item.startYear} — {item.endYear}</p>
+          <h3>{item.school}</h3>
+          <p class="degree" {...languageAttributes(item.degree)}>{item.degree.fr}</p>
+          <p class="location">{item.location}</p>
+        </div>
+        {item.coursework.length > 0 && (
+          <div class="coursework" aria-label="Cours principaux">
+            {item.coursework.map((course, index) => (
+              <span data-i18n-fr={courseworkFr[index] ?? course} data-i18n-en={course}>{courseworkFr[index] ?? course}</span>
+            ))}
+          </div>
+        )}
+      </article>
+    );
+  })}
+</div>
+
+<style>
+  .education-list {
+    width: 100%;
+    max-width: 920px;
+  }
+
+  .education-entry {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--card-border-color);
+  }
+
+  .education-entry:last-child {
+    border-bottom: 1px solid var(--card-border-color);
+  }
+
+  .period,
+  .location,
+  .coursework span {
+    font-family: var(--font-family-sans);
+  }
+
+  .period {
+    margin: 0 0 1rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  h3 {
+    margin: 0 0 0.35rem;
+    font-size: clamp(1.35rem, 1.1rem + 0.7vw, 1.8rem);
+    font-weight: 600;
+  }
+
+  .degree {
+    margin: 0 0 0.35rem;
+    font-size: 1.1rem;
+    line-height: 1.5;
+  }
+
+  .location {
+    margin: 0;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .coursework {
+    display: flex;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .coursework span {
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--card-border-color);
+    border-radius: 5px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+  }
+
+  @media (min-width: 720px) {
+    .education-entry {
+      grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr);
+      gap: 3rem;
+      align-items: center;
+    }
+  }
+</style>

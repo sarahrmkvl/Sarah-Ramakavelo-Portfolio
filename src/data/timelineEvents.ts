@@ -1,100 +1,49 @@
-// src/data/timelineEvents.ts
+import { formatPeriod, profile } from "./profile";
 
 export interface TimelineEventItem {
-  date: string; // YYYY-MM format (represents END date for sorting intervals)
-  dateRange?: string; // Formatted display range (e.g., "Jul 2024 – Sep 2024")
+  date: string;
+  dateRange: string;
+  dateRangeEn: string;
   title: string;
-  category: "Experiences" | "Honors" | "Publications";
-  description?: string; // HTML string
+  titleEn: string;
+  category: "Experiences" | "Education";
+  description: string;
+  descriptionEn: string;
   isHighlight?: boolean;
-  highlightSummary?: string;
+  highlightSummary: string;
+  highlightSummaryEn: string;
 }
 
-export const allTimelineEvents: TimelineEventItem[] = [
-  // Experiences (Sorted by end date implicitly for data entry)
+const experiences: TimelineEventItem[] = profile.experience.map((item) => {
+  const period = formatPeriod(item.startDate, item.endDate, item.current);
+  return {
+    date: item.endDate ?? item.startDate,
+    dateRange: period.fr,
+    dateRangeEn: period.en,
+    title: `${item.company} · ${item.role.fr}`,
+    titleEn: `${item.company} · ${item.role.en}`,
+    category: "Experiences",
+    description: `<p>${item.summary.fr}</p><ul>${item.bullets.fr.map((bullet) => `<li>${bullet}</li>`).join("")}</ul>`,
+    descriptionEn: `<p>${item.summary.en}</p><ul>${item.bullets.en.map((bullet) => `<li>${bullet}</li>`).join("")}</ul>`,
+    isHighlight: true,
+    highlightSummary: item.summary.fr,
+    highlightSummaryEn: item.summary.en,
+  };
+});
 
-  {
-    date: "2024-09",
-    dateRange: "July 2024 – September 2024",
-    title: "Lorem Ipsum",
-    category: "Experiences",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-    isHighlight: true,
-    highlightSummary: `Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.`,
-  },
-  {
-    date: "2024-06",
-    dateRange: "September 2023 – June 2024",
-    title: "Lorem Ipsum",
-    category: "Experiences",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2024-08",
-    title: "Sleeping is all you need",
-    category: "Publications",
-    isHighlight: true,
-    description: `<em>Sleeping is all you need</em> accepted by International Conference on Sleep Deprivation and Coffee Addiction.`,
-    highlightSummary:
-      "A groundbreaking study proving that people need sleeping, accepted by ICSDCA.",
-  },
-  {
-    date: "2023-05",
-    title: "Lorem Ipsum",
-    category: "Experiences",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2022-09",
-    title: "Lorem Ipsum",
-    category: "Experiences",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
+const education: TimelineEventItem[] = profile.education.map((item) => ({
+  date: `${item.endYear}-06`,
+  dateRange: `${item.startYear} — ${item.endYear}`,
+  dateRangeEn: `${item.startYear} — ${item.endYear}`,
+  title: `${item.school} · ${item.degree.fr}`,
+  titleEn: `${item.school} · ${item.degree.en}`,
+  category: "Education",
+  description: `<p>${item.location}${item.coursework.length ? ` · ${(item.courseworkFr ?? item.coursework).join(" · ")}` : ""}</p>`,
+  descriptionEn: `<p>${item.location}${item.coursework.length ? ` · ${item.coursework.join(" · ")}` : ""}</p>`,
+  highlightSummary: item.degree.fr,
+  highlightSummaryEn: item.degree.en,
+}));
 
-  // Honors
-  {
-    date: "2024-11",
-    title: "International Vibe Coding Award",
-    category: "Honors",
-    isHighlight: true,
-    description: `<p>Awarded the prestigious International Vibe Coding Award.</p>`,
-    highlightSummary:
-      "Awarded the prestigious International Vibe Coding Award.",
-  },
-  {
-    date: "2024-11",
-    title: "Lorem Ipsum",
-    category: "Honors",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2024-11",
-    title: "Lorem Ipsum",
-    category: "Honors",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2024-10",
-    title: "Lorem Ipsum",
-    category: "Honors",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2024-05",
-    title: "Lorem Ipsum",
-    category: "Honors",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2023-11",
-    title: "Lorem Ipsum",
-    category: "Honors",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-  {
-    date: "2023-10",
-    title: "Lorem Ipsum",
-    category: "Honors",
-    description: `<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>`,
-  },
-];
+export const allTimelineEvents = [...experiences, ...education].sort(
+  (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+);

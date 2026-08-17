@@ -5,37 +5,29 @@ import {
 } from "../../../data/projectsData";
 import FeaturedProjectCard from "../FeaturedProjectCard.astro"; // Import the new card component
 import Button from "../../common/Button.astro";
+import { sitePath } from "../../../data/profile";
 
 const featuredProjects: ProjectDataItem[] = allProjectsData.filter(
   (project) => project.isFeatured
 );
-const projectsUrl = "/projects";
+const projectsUrl = sitePath("/projects");
 
-function slugify(text: string): string {
-  return text
-    .toString()
-    .toLowerCase()
-    .replace(/\s+/g, "-") // Replace spaces with -
-    .replace(/[^\w-]+/g, "") // Remove all non-word chars (removed \ before -)
-    .replace(/--+/g, "-") // Replace multiple - with single - (removed \ before -)
-    .replace(/^-+/, "") // Trim - from start of text
-    .replace(/-+$/, ""); // Trim - from end of text
-}
 ---
 
-<h2 slot="title" class="about-title scroll-target-title">Featured Works</h2>
+<h2 slot="title" class="about-title scroll-target-title">Selected analysis</h2>
 
 <div class="about-content scroll-target-content featured-works-container">
   {
     featuredProjects.map((project) => {
-      const slug = slugify(project.title);
       return (
         <FeaturedProjectCard
           title={project.title}
+          titleFr={project.titleFr}
           homepageSummary={project.homepageSummary}
+          homepageSummaryFr={project.homepageSummaryFr}
           imageAlt={project.imageAlt}
           githubUrl={project.githubUrl}
-          slug={slug}
+          slug={project.id}
         />
       );
     })
@@ -45,7 +37,7 @@ function slugify(text: string): string {
     <Button
       class="button"
       href={projectsUrl}
-      text="Discover More Projects"
+      text="Explore all projects"
       wrapperClass="projects-cta-button"
     />
   </div>

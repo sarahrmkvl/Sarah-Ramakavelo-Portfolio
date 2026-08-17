@@ -4,7 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "validate:profile": "node scripts/validate-profile.mjs",
+    "build": "npm run validate:profile && astro build",
     "preview": "astro preview",
     "astro": "astro"
   },

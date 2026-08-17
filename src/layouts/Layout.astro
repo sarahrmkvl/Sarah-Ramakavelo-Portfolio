@@ -3,6 +3,8 @@ import { ClientRouter } from "astro:transitions";
 import DynamicBackground from "../components/DynamicBackground.astro";
 import ScrollIndicator from "../components/ScrollIndicator.astro";
 import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { profile, sitePath } from "../data/profile";
 
 interface Props {
   title?: string;
@@ -10,10 +12,14 @@ interface Props {
 }
 const { title, showIndicatorOverride } = Astro.props;
 
-const pageTitle = `${title || "Homepage"} | Nagare`;
+const pageTitle = title === "Homepage" || !title
+  ? `${profile.identity.fullName} | Finance & Markets`
+  : `${title} | ${profile.identity.fullName}`;
 
 const currentPath = Astro.url.pathname;
-const shouldShowBasedOnPath = currentPath === "/";
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const relativePath = currentPath.slice(basePath.length) || "/";
+const shouldShowBasedOnPath = relativePath === "/" || relativePath === "/index.html";
 const showScrollIndicator =
   showIndicatorOverride !== undefined
     ? showIndicatorOverride
@@ -25,8 +31,9 @@ const showScrollIndicator =
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" href={sitePath("/favicon.png")} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={profile.positioning.fr.summary} />
     <title>{pageTitle}</title>
     <ClientRouter />
     <script is:inline>
@@ -139,6 +146,8 @@ const showScrollIndicator =
       .main-content {
         min-height: 100vh;
         padding: 0;
+        position: relative;
+        z-index: 1;
       }
 
       @media (min-width: 768px) {
@@ -151,31 +160,26 @@ const showScrollIndicator =
     <style is:global>
       .scroll-reveal-animate {
         opacity: 0;
-        filter: blur(5px);
         transform: translateY(20px) translateZ(0);
-        will-change: opacity, filter, transform;
+        will-change: opacity, transform;
         transition:
           opacity 0.8s ease-out,
-          filter 0.8s ease-out,
           transform 0.8s ease-out;
       }
       .scroll-reveal-animate.visible {
         opacity: 1;
-        filter: blur(0px);
         transform: translateY(0) translateZ(0);
       }
 
       .page-load-initial-state {
         opacity: 0;
-        filter: blur(5px);
         transform: translateY(20px) translateZ(0);
-        will-change: opacity, filter, transform;
+        will-change: opacity, transform;
       }
 
       @keyframes pageLoadAnimate {
         to {
           opacity: 1;
-          filter: blur(0px);
           transform: translateY(0) translateZ(0);
         }
       }
@@ -275,7 +279,7 @@ const showScrollIndicator =
             });
 
             if (sectionTitle) {
-              gsap.set(sectionTitle, { filter: "blur(8px)", opacity: 0 });
+              gsap.set(sectionTitle, { opacity: 0, y: 12 });
               gsap
                 .timeline({
                   scrollTrigger: {
@@ -287,14 +291,14 @@ const showScrollIndicator =
                   },
                 })
                 .to(sectionTitle, {
-                  filter: "blur(0px)",
                   opacity: 1,
+                  y: 0,
                   ease: "sine",
                   duration: 8,
                 })
                 .to(sectionTitle, {
-                  filter: "blur(8px)",
                   opacity: 0,
+                  y: -12,
                   ease: "sine",
                   duration: 1,
                 });
@@ -350,6 +354,7 @@ const showScrollIndicator =
   <body>
     <div class="page-wrapper">
       <DynamicBackground />
+      <Header />
       <main class="main-content">
         <slot />
       </main>

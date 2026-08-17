@@ -1,25 +1,24 @@
 ---
 // Content for the "Meet me!" section
 import Button from "../../common/Button.astro";
+import { languageAttributes, profile, sitePath } from "../../../data/profile";
 
-const resumeUrl = "/resume";
+const resumeUrl = sitePath("/resume");
 // const contactUrl = "/contact";
 ---
 
-<h2 slot="title" class="about-title scroll-target-title">About me</h2>
+<h2 slot="title" class="about-title scroll-target-title">Markets, with perspective</h2>
 
 <div class="about-content scroll-target-content">
-  <p>
-    Welcome to Nagare, a modern portfolio template designed for developers and
-    creators. This template features a clean, minimalist design with smooth
-    animations and responsive layouts.
-  </p>
+  <p {...languageAttributes({ fr: profile.positioning.fr.summary, en: profile.positioning.en.summary })}>{profile.positioning.fr.summary}</p>
 
-  <p>
-    Built with <strong>Astro</strong> and <strong>TypeScript</strong>, Nagare
-    offers a perfect blend of tech and aesthetics. It's fully customizable and
-    ready to showcase your projects and experiences.
-  </p>
+  <div class="highlights">
+    {profile.highlights.map((highlight) => (
+      <div class="highlight"><strong>{highlight.value}</strong><span {...languageAttributes(highlight.label)}>{highlight.label.fr}</span></div>
+    ))}
+  </div>
+
+  <p {...languageAttributes({ fr: profile.positioning.fr.availability, en: profile.positioning.en.availability })}>{profile.positioning.fr.availability}</p>
 
   <div class="button-group">
     <Button
@@ -37,4 +36,8 @@ const resumeUrl = "/resume";
     gap: 1rem; /* Adjust spacing as needed */
     margin-top: 2rem;
   }
+  .highlights { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 1rem; margin: 2rem 0; }
+  .highlight { display: flex; flex-direction: column; gap: .25rem; }
+  .highlight strong { font-size: 1.6rem; }
+  .highlight span { font-family: var(--font-family-sans); font-size: .8rem; color: var(--text-muted); }
 </style>

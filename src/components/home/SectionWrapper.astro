@@ -1,8 +1,12 @@
 ---
-// Component: src/components/home/SectionWrapper.astro
+interface Props {
+  id?: string;
+}
+
+const { id } = Astro.props;
 ---
 
-<section class="section-wrapper about-section">
+<section {id} class="section-wrapper about-section">
   <slot name="title" />
   <slot />
 </section>
@@ -10,6 +14,7 @@
   .about-section {
     padding: 15vh 5vw;
     min-height: 70vh;
+    scroll-margin-top: 4.5rem;
 </style>
 
 <style is:global>

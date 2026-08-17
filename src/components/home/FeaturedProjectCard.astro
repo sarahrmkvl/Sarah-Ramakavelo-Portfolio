@@ -2,30 +2,35 @@
 // src/components/home/FeaturedProjectCard.astro
 
 import { Icon } from "astro-icon/components";
+import { sitePath } from "../../data/profile";
 
 interface Props {
   title: string;
+  titleFr?: string;
   imageAlt?: string;
   homepageSummary?: string; // Use concise summary
+  homepageSummaryFr?: string;
   githubUrl?: string;
   slug: string; // Slug for linking to the project page
 }
 
 const {
   title,
+  titleFr = title,
   homepageSummary = "Click to learn more...", // Default summary
+  homepageSummaryFr = homepageSummary,
   slug,
 } = Astro.props;
 
 const githubUrl = undefined;
 
-const projectUrl = `/projects?scrollTo=${slug}`;
+const projectUrl = sitePath(`/projects/${slug}`);
 ---
 
 <a href={projectUrl} class="featured-project-card">
   <div class="card-content-wrapper">
-    <h4>{title}</h4>
-    <p class="summary" set:html={homepageSummary} />
+    <h4 data-i18n-en={title} data-i18n-fr={titleFr}>{title}</h4>
+    <p class="summary" data-i18n-en={homepageSummary} data-i18n-fr={homepageSummaryFr}>{homepageSummary}</p>
     {
       githubUrl && (
         <div class="github-icon-link-wrapper" aria-hidden="true">

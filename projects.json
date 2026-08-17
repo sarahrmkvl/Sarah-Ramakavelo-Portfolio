@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "1.0",
+  "projects": [
+    {
+      "id": "portfolio-optimisation",
+      "name": {
+        "fr": "Analyse & optimisation de portefeuille",
+        "en": "Portfolio Analysis & Optimisation"
+      },
+      "featured": true,
+      "timeframe": { "fr": "Projet de portfolio", "en": "Portfolio project" },
+      "confidentiality": null,
+      "links": {
+        "github": "https://github.com/sarahrmkvl/capstone-portfolio-optimisation",
+        "live": null
+      },
+      "summary": {
+        "fr": "Exploration de la frontière efficiente de Markowitz à partir d’actions américaines, avec simulation Monte Carlo et optimisation du ratio de Sharpe.",
+        "en": "Exploration of the Markowitz efficient frontier using US equities, Monte Carlo simulation and Sharpe-ratio optimisation."
+      },
+      "context": {
+        "fr": "Un projet d’analyse quantitative consacré à la relation entre rendement attendu, volatilité et diversification d’un portefeuille d’actions américaines.",
+        "en": "A quantitative analysis project focused on the relationship between expected return, volatility and diversification in a US equity portfolio."
+      },
+      "problem": {
+        "fr": "Comment construire et comparer des allocations afin d’identifier les portefeuilles offrant les meilleurs compromis risque-rendement ?",
+        "en": "How can allocations be built and compared to identify portfolios offering the strongest risk-return trade-offs?"
+      },
+      "method": {
+        "fr": [
+          "Calcul des rendements et volatilités annualisés",
+          "Construction de la matrice de covariance",
+          "Simulation Monte Carlo de portefeuilles",
+          "Optimisation du ratio de Sharpe",
+          "Visualisation de la frontière efficiente"
+        ],
+        "en": [
+          "Annualised return and volatility calculations",
+          "Covariance matrix construction",
+          "Monte Carlo portfolio simulation",
+          "Sharpe-ratio optimisation",
+          "Efficient-frontier visualisation"
+        ]
+      },
+      "results": {
+        "fr": [
+          "Comparaison visuelle des allocations simulées selon leur profil risque-rendement",
+          "Identification des portefeuilles de volatilité minimale et de ratio de Sharpe maximal"
+        ],
+        "en": [
+          "Visual comparison of simulated allocations by risk-return profile",
+          "Identification of minimum-volatility and maximum-Sharpe portfolios"
+        ]
+      },
+      "learnings": {
+        "fr": "Ce projet relie les fondements de la théorie moderne du portefeuille à une mise en œuvre reproductible en Python.",
+        "en": "This project connects modern portfolio theory with a reproducible Python implementation."
+      },
+      "technologies": ["Python", "Pandas", "NumPy", "Matplotlib", "Seaborn", "Plotly"],
+      "images": []
+    },
+    {
+      "id": "reconciliation-engine",
+      "name": { "fr": "Moteur de rapprochement", "en": "Reconciliation Engine" },
+      "featured": false,
+      "timeframe": { "fr": "Cas professionnel", "en": "Professional use case" },
+      "confidentiality": {
+        "fr": "Cas d’usage professionnel anonymisé",
+        "en": "Anonymised professional use case"
+      },
+      "links": { "github": null, "live": null },
+      "summary": {
+        "fr": "Prototype Python conçu pour rapprocher des positions et des ordres, signaler les ambiguïtés et réduire les contrôles manuels lors d’une évolution de méthodologie de marge.",
+        "en": "Python prototype designed to reconcile positions and orders, flag ambiguities and reduce manual controls during a margin-methodology transition."
+      },
+      "context": {
+        "fr": "Un processus de contrôle nécessitait le rapprochement de données provenant de plusieurs sources dans un contexte opérationnel sensible.",
+        "en": "A control process required data from several sources to be reconciled in an operationally sensitive context."
+      },
+      "problem": {
+        "fr": "Comment automatiser les correspondances fiables tout en isolant les cas ambigus qui nécessitent une revue humaine ?",
+        "en": "How can reliable matches be automated while isolating ambiguous cases that require human review?"
+      },
+      "method": {
+        "fr": ["Normalisation des données", "Règles de rapprochement", "Détection des ambiguïtés", "Contrôles de qualité"],
+        "en": ["Data normalisation", "Matching rules", "Ambiguity detection", "Quality checks"]
+      },
+      "results": {
+        "fr": ["Réduction des contrôles manuels répétitifs", "Traçabilité des correspondances et des exceptions"],
+        "en": ["Reduction of repetitive manual controls", "Traceability of matches and exceptions"]
+      },
+      "learnings": {
+        "fr": "Le prototype montre comment une automatisation ciblée peut renforcer un contrôle sans masquer les exceptions importantes.",
+        "en": "The prototype shows how targeted automation can strengthen a control without hiding important exceptions."
+      },
+      "technologies": ["Python", "Data Matching", "Quality Checks"],
+      "images": []
+    }
+  ]
+}

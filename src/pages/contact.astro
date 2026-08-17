@@ -1,29 +1,21 @@
 ---
 import SubPageLayout from "../layouts/SubPageLayout.astro";
 import { Icon } from "astro-icon/components";
+import { profile } from "../data/profile";
 ---
 
 <SubPageLayout title="Contact">
   <div class="contact-content">
-    <p class="intro-text">Feel free to reach out!</p>
-    <p class="intro-text">Here's some description about how to contact me.</p>
+    <p class="intro-text" data-i18n-fr={profile.positioning.fr.availability} data-i18n-en={profile.positioning.en.availability}>{profile.positioning.fr.availability}</p>
+    <p class="intro-text">{profile.identity.basedIn.join(" · ")}</p>
 
-    <h3 class="contact-section-title">Contact Information</h3>
-    <p class="section-description">This is a list of my contact information.</p>
-    <ul class="contact-list">
-      <li>
-        <Icon name="ri:mail-line" class="contact-icon" />
-        <a href="javascript:alert('link to your email')">example@example.com</a>
-      </li>
-      <li>
-        <Icon name="ri:github-line" class="contact-icon" />
-        <a href="javascript:alert('link to your github')">github.com/example</a>
-      </li>
-      <li>
-        <Icon name="ri:planet-line" class="contact-icon" />
-        <a href="javascript:alert('link to your website')">example.com</a>
-      </li>
-    </ul>
+    <h3 class="contact-section-title" data-i18n-fr="Coordonnées" data-i18n-en="Contact information">Coordonnées</h3>
+    {!profile.contact.email && !profile.contact.linkedin && <p class="section-description" data-i18n-fr="Les coordonnées professionnelles seront ajoutées prochainement." data-i18n-en="Professional contact details will be added soon.">Les coordonnées professionnelles seront ajoutées prochainement.</p>}
+    <div class="contact-actions">
+      {profile.contact.email && <a href={`mailto:${profile.contact.email}`}><Icon name="ri:mail-line" /><span><strong>Email</strong><small>{profile.contact.email}</small></span></a>}
+      {profile.contact.linkedin && <a href={profile.contact.linkedin} target="_blank" rel="noopener noreferrer"><Icon name="ri:linkedin-box-line" /><span><strong>LinkedIn</strong><small data-i18n-fr="Voir le profil" data-i18n-en="View profile">Voir le profil</small></span></a>}
+      {profile.contact.github && <a href={profile.contact.github} target="_blank" rel="noopener noreferrer"><Icon name="ri:github-line" /><span><strong>GitHub</strong><small data-i18n-fr="Voir le profil" data-i18n-en="View profile">Voir le profil</small></span></a>}
+    </div>
   </div>
 </SubPageLayout>
 
@@ -54,41 +46,32 @@ import { Icon } from "astro-icon/components";
     line-height: 1.6;
   }
 
-  .contact-list {
-    list-style: none;
-    padding-left: 0;
-    margin: 0;
-    line-height: 1.9;
+  .contact-actions {
+    display: grid;
+    gap: 0.75rem;
   }
-  .contact-list li {
-    margin-bottom: 1.2rem;
+  .contact-actions a {
     display: flex;
-    align-items: flex-start;
-    font-size: 1.1rem;
-  }
-  .contact-icon {
-    margin-right: 1em;
-    font-size: 1.3em;
-    flex-shrink: 0;
-    opacity: 0.9;
-    color: var(--icon-color);
-    margin-top: 0.3em;
-  }
-
-  .contact-list a,
-  .contact-list span {
-    word-break: break-all;
-  }
-
-  .contact-list a {
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--button-border-color);
+    border-radius: 7px;
     color: var(--link-color);
     text-decoration: none;
-    transition: color 0.3s ease;
+    font-family: var(--font-family-sans);
+    transition: color .2s ease, border-color .2s ease, background-color .2s ease;
   }
-  .contact-list a:hover {
+  .contact-actions a:hover {
     color: var(--link-hover-color);
-    text-decoration: underline;
+    border-color: var(--button-border-hover-color);
+    background: var(--button-hover-bg);
+    text-decoration: none;
   }
+  .contact-actions :global(svg) { flex: 0 0 auto; font-size: 1.3rem; }
+  .contact-actions span { min-width: 0; display: flex; flex-direction: column; gap: .15rem; }
+  .contact-actions small { overflow-wrap: anywhere; color: var(--text-muted); }
+  .contact-actions strong { font-size: .9rem; }
 
   .section-divider {
     border: 0;

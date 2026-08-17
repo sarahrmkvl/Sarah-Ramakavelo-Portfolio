@@ -1,0 +1,398 @@
+---
+import { Icon } from "astro-icon/components";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
+import { profile, sitePath } from "../data/profile";
+
+const navItems = [
+  { label: "About", href: `${sitePath("/")}#about`, section: "about" },
+  { label: "Education", href: `${sitePath("/")}#education`, section: "education" },
+  { label: "Projects", href: `${sitePath("/")}#work`, section: "work" },
+  { label: "Experience", href: `${sitePath("/")}#journey`, section: "journey" },
+  { label: "Beyond", href: `${sitePath("/")}#beyond`, section: "beyond" },
+  { label: "Contact", href: `${sitePath("/")}#contact`, section: "contact" },
+];
+
+const cvUrl = profile.contact.cvUrl ? sitePath(profile.contact.cvUrl) : null;
+---
+
+<header class="site-header" data-site-header data-base-path={sitePath("/")}>
+  <div class="header-inner">
+    <a class="brand" href={sitePath("/")} aria-label={`${profile.identity.fullName}, accueil`} data-astro-prefetch>
+      <span class="brand-mark" aria-hidden="true">{profile.identity.initials}</span>
+      <span class="brand-name">{profile.identity.fullName}</span>
+    </a>
+
+    <button
+      class="menu-toggle"
+      type="button"
+      aria-label="Open navigation"
+      aria-expanded="false"
+      aria-controls="primary-navigation"
+      data-menu-toggle
+    >
+      <Icon name="ri:menu-3-line" class="menu-icon menu-open-icon" />
+      <Icon name="ri:close-line" class="menu-icon menu-close-icon" />
+    </button>
+
+    <nav id="primary-navigation" class="primary-navigation" aria-label="Primary navigation">
+      {
+        navItems.map((item) => (
+          <a
+            class="nav-link"
+            href={item.href}
+            data-section-link={item.section}
+            data-astro-prefetch
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a class="resume-link" href={sitePath("/resume")} data-resume-link data-astro-prefetch>
+        Résumé
+      </a>
+      {cvUrl && (
+        <a
+          class="cv-download-link"
+          href={cvUrl}
+          download="CV-Sarah-Ramakavelo.pdf"
+          title="Télécharger le CV"
+          aria-label="Télécharger le CV de Sarah Ramakavelo"
+        >
+          <Icon name="ri:download-line" />
+        </a>
+      )}
+      <LanguageSwitcher />
+    </nav>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    font-family: var(--font-family-sans);
+    color: var(--text-color);
+  }
+
+  .header-inner {
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 4.5rem;
+    margin: 0;
+    padding: 0 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid transparent;
+    background: color-mix(in srgb, var(--bg-color) 20%, transparent);
+    backdrop-filter: blur(4px);
+    transition:
+      background-color 0.25s ease,
+      border-color 0.25s ease,
+      backdrop-filter 0.25s ease;
+  }
+
+  .site-header.is-scrolled .header-inner {
+    background: color-mix(in srgb, var(--bg-color) 46%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--text-color) 12%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .site-header.is-open .header-inner {
+    background: color-mix(in srgb, var(--bg-color) 82%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--text-color) 12%, transparent);
+    backdrop-filter: blur(18px);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .brand:hover,
+  .brand:focus-visible {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .brand-mark {
+    width: 2rem;
+    height: 2rem;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px solid color-mix(in srgb, var(--text-color) 55%, transparent);
+    border-radius: 50%;
+    font-family: var(--font-family-serif);
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .brand-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-family-serif);
+    font-size: 1.05rem;
+    font-weight: 600;
+  }
+
+  .menu-toggle {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--button-border-color);
+    border-radius: 6px;
+    color: inherit;
+    background: color-mix(in srgb, var(--bg-color) 60%, transparent);
+    cursor: pointer;
+  }
+
+  .menu-icon {
+    grid-area: 1 / 1;
+    font-size: 1.25rem;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+
+  .menu-close-icon,
+  .site-header.is-open .menu-open-icon {
+    opacity: 0;
+    transform: rotate(-45deg);
+  }
+
+  .site-header.is-open .menu-close-icon {
+    opacity: 1;
+    transform: rotate(0);
+  }
+
+  .primary-navigation {
+    position: absolute;
+    top: 4.5rem;
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.75rem 5vw 1.25rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--text-color) 14%, transparent);
+    background: color-mix(in srgb, var(--bg-color) 94%, transparent);
+    backdrop-filter: blur(16px);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+  }
+
+  .site-header.is-open .primary-navigation {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .nav-link,
+  .resume-link {
+    padding: 0.8rem 0;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 500;
+  }
+
+  .cv-download-link {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: grid;
+    place-items: center;
+    align-self: center;
+    border: 1px solid var(--button-border-color);
+    border-radius: 6px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  }
+
+  .cv-download-link:hover,
+  .cv-download-link:focus-visible {
+    border-color: var(--button-border-hover-color);
+    background: var(--button-hover-bg);
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible,
+  .nav-link.is-active,
+  .resume-link:hover,
+  .resume-link:focus-visible,
+  .resume-link.is-active {
+    color: var(--text-color);
+    text-decoration: none;
+  }
+
+  .resume-link {
+    margin-top: 0.4rem;
+    padding: 0.65rem 1rem;
+    border: 1px solid var(--button-border-color);
+    border-radius: 6px;
+    text-align: center;
+  }
+
+  @media (min-width: 1100px) {
+    .header-inner {
+      padding: 0 7vw;
+    }
+
+    .menu-toggle {
+      display: none;
+    }
+
+    .primary-navigation {
+      position: static;
+      flex-direction: row;
+      align-items: center;
+      gap: clamp(1rem, 2.2vw, 2rem);
+      padding: 0;
+      border: 0;
+      background: transparent;
+      backdrop-filter: none;
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+
+    .nav-link {
+      position: relative;
+      padding: 0.5rem 0;
+    }
+
+    .nav-link::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      bottom: 0.2rem;
+      left: 0;
+      height: 1px;
+      background: currentColor;
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform 0.2s ease;
+    }
+
+    .nav-link:hover::after,
+    .nav-link:focus-visible::after,
+    .nav-link.is-active::after {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+
+    .resume-link {
+      margin: 0 0 0 0.25rem;
+      padding: 0.55rem 0.9rem;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .resume-link:hover,
+    .resume-link:focus-visible,
+    .resume-link.is-active {
+      border-color: var(--button-border-hover-color);
+      background: var(--button-hover-bg);
+    }
+
+    .cv-download-link {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-inner,
+    .menu-icon,
+    .primary-navigation,
+    .nav-link::after,
+    .resume-link {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function setupHeader() {
+    const header = document.querySelector<HTMLElement>("[data-site-header]");
+    const pageWrapper = document.querySelector<HTMLElement>(".page-wrapper");
+    const toggle = header?.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+    const nav = header?.querySelector<HTMLElement>("#primary-navigation");
+
+    if (!header || !pageWrapper || !toggle || !nav) return;
+
+    const closeMenu = () => {
+      header.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.setAttribute("aria-label", "Open navigation");
+    };
+
+    const updateHeader = () => {
+      header.classList.toggle("is-scrolled", pageWrapper.scrollTop > 24);
+    };
+
+    toggle.addEventListener("click", () => {
+      const willOpen = !header.classList.contains("is-open");
+      header.classList.toggle("is-open", willOpen);
+      toggle.setAttribute("aria-expanded", String(willOpen));
+      toggle.setAttribute("aria-label", willOpen ? "Close navigation" : "Open navigation");
+    });
+
+    nav.addEventListener("click", (event) => {
+      if ((event.target as Element).closest("a")) closeMenu();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+
+    pageWrapper.addEventListener("scroll", updateHeader, { passive: true });
+    updateHeader();
+
+    const sectionLinks = [...header.querySelectorAll<HTMLAnchorElement>("[data-section-link]")];
+    const resumeLink = header.querySelector<HTMLAnchorElement>("[data-resume-link]");
+    const basePath = header.dataset.basePath?.replace(/\/$/, "") || "";
+    const relativePath = window.location.pathname.slice(basePath.length) || "/";
+    const isHomepage = relativePath === "/" || relativePath === "/index.html";
+
+    resumeLink?.classList.toggle("is-active", relativePath.startsWith("/resume"));
+    resumeLink?.toggleAttribute("aria-current", relativePath.startsWith("/resume"));
+
+    if (!isHomepage) return;
+
+    const sections = sectionLinks
+      .map((link) => document.getElementById(link.dataset.sectionLink ?? ""))
+      .filter((section): section is HTMLElement => Boolean(section));
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (!visible) return;
+
+        sectionLinks.forEach((link) => {
+          const isActive = link.dataset.sectionLink === visible.target.id;
+          link.classList.toggle("is-active", isActive);
+          link.toggleAttribute("aria-current", isActive);
+        });
+      },
+      { root: pageWrapper, rootMargin: "-25% 0px -55%", threshold: [0, 0.2, 0.5] }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  document.addEventListener("astro:page-load", setupHeader);
+</script>

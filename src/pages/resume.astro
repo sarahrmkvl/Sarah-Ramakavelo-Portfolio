@@ -1,64 +1,101 @@
 ---
 import SubPageLayout from "../layouts/SubPageLayout.astro";
-import Education from "../components/resume/Education.astro";
-import Experience from "../components/resume/Experience.astro";
-import Skills from "../components/resume/Skills.astro";
-import Awards from "../components/resume/Awards.astro";
-import ContactInfo from "../components/resume/ContactInfo.astro";
-import Profile from "../components/resume/Profile.astro";
-import Projects from "../components/resume/Projects.astro";
 import Button from "../components/common/Button.astro";
+import { formatPeriod, languageAttributes, profile, sitePath } from "../data/profile";
+import { projects } from "../data/projects";
+
+const skillGroups = [
+  { title: { fr: "Finance", en: "Finance" }, values: profile.skills.finance },
+  { title: { fr: "Technique & outils", en: "Technical & tools" }, values: profile.skills.technical },
+];
+const cvUrl = profile.contact.cvUrl ? sitePath(profile.contact.cvUrl) : null;
 ---
 
 <SubPageLayout title="Résumé">
-  <Button
-    href="javascript:alert('link to your resume')"
-    text="Download Résumé PDF"
-    download="resume.pdf"
-    icon="↓"
-    iconPosition="left"
-    target="_blank"
-    rel="noopener noreferrer"
-    wrapperClass="resume-page-download"
-  />
-  <div class="resume-columns-wrapper">
-    <div class="resume-main-column">
-      <Profile />
-      <Education />
-      <Awards />
-      <Experience />
-      <Projects />
-    </div>
-    <div class="resume-sidebar">
-      <Skills />
-      <ContactInfo />
-    </div>
+  {cvUrl && <Button href={cvUrl} text="Télécharger le CV" download="CV-Sarah-Ramakavelo.pdf" icon="↓" />}
+
+  <div class="resume-grid">
+    <main>
+      <section>
+        <h2 data-i18n-fr="Profil" data-i18n-en="Profile">Profil</h2>
+        <p {...languageAttributes({ fr: profile.positioning.fr.summary, en: profile.positioning.en.summary })}>{profile.positioning.fr.summary}</p>
+        <p {...languageAttributes({ fr: profile.positioning.fr.availability, en: profile.positioning.en.availability })}>{profile.positioning.fr.availability}</p>
+      </section>
+
+      <section>
+        <h2 data-i18n-fr="Expérience" data-i18n-en="Experience">Expérience</h2>
+        {profile.experience.map((item) => {
+          const period = formatPeriod(item.startDate, item.endDate, item.current);
+          return <article>
+            <header><span><strong>{item.company}</strong> · <span {...languageAttributes(item.role)}>{item.role.fr}</span></span><time {...languageAttributes(period)}>{period.fr}</time></header>
+            <p class="meta">{item.location}</p>
+            <p {...languageAttributes(item.summary)}>{item.summary.fr}</p>
+            <ul>{item.bullets.fr.map((bullet, index) => <li data-i18n-fr={bullet} data-i18n-en={item.bullets.en[index] ?? bullet}>{bullet}</li>)}</ul>
+          </article>;
+        })}
+      </section>
+
+      <section>
+        <h2 data-i18n-fr="Formation" data-i18n-en="Education">Formation</h2>
+        {profile.education.map((item) => <article>
+          <header><span><strong>{item.school}</strong> · <span {...languageAttributes(item.degree)}>{item.degree.fr}</span></span><time>{item.startYear} — {item.endYear}</time></header>
+          <p class="meta">{item.location}</p>
+          {item.coursework.length > 0 && <p data-i18n-fr={(item.courseworkFr ?? item.coursework).join(" · ")} data-i18n-en={item.coursework.join(" · ")}>{(item.courseworkFr ?? item.coursework).join(" · ")}</p>}
+        </article>)}
+      </section>
+
+      <section>
+        <h2 data-i18n-fr="Projets" data-i18n-en="Projects">Projets</h2>
+        {projects.map((item) => <article>
+          <header><strong {...languageAttributes(item.name)}>{item.name.fr}</strong></header>
+          <p {...languageAttributes(item.summary)}>{item.summary.fr}</p>
+          <a href={sitePath(`/projects/${item.id}`)} data-i18n-fr="Lire l’étude de cas" data-i18n-en="Read case study">Lire l’étude de cas</a>
+        </article>)}
+      </section>
+
+      <section>
+        <h2 data-i18n-fr="Au-delà du CV" data-i18n-en="Beyond the CV">Au-delà du CV</h2>
+        {profile.activities.map((item) => {
+          const title = typeof item.title === "string" ? { fr: item.title, en: item.title } : item.title;
+          return <article><strong {...languageAttributes(title)}>{title.fr}</strong><p {...languageAttributes(item.description)}>{item.description.fr}</p></article>;
+        })}
+      </section>
+    </main>
+
+    <aside>
+      <section>
+        <h2 data-i18n-fr="Compétences" data-i18n-en="Skills">Compétences</h2>
+        {skillGroups.map((group) => <div class="skill-group"><h3 {...languageAttributes(group.title)}>{group.title.fr}</h3><p>{group.values.join(" · ")}</p></div>)}
+      </section>
+      <section>
+        <h2 data-i18n-fr="Langues" data-i18n-en="Languages">Langues</h2>
+        <ul class="plain">{profile.skills.languages.map((item) => <li><strong>{item.language}</strong><br />{item.level}</li>)}</ul>
+      </section>
+      <section>
+        <h2>Contact</h2>
+        <p>{profile.identity.basedIn.join(" · ")}</p>
+        {profile.contact.email && <p><a href={`mailto:${profile.contact.email}`}>{profile.contact.email}</a></p>}
+        {profile.contact.linkedin && <p><a href={profile.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></p>}
+        {profile.contact.github && <p><a href={profile.contact.github} target="_blank" rel="noopener noreferrer">GitHub</a></p>}
+      </section>
+    </aside>
   </div>
 </SubPageLayout>
 
 <style>
-  .resume-columns-wrapper {
-    display: flex;
-    flex-direction: row;
-    gap: 5vw;
-  }
-  .resume-main-column {
-    flex: 5;
-    min-width: 0;
-    font-size: 1.1rem;
-  }
-  .resume-sidebar {
-    flex: 2;
-    min-width: 0;
-    font-size: 1.1rem;
-  }
-  @media (max-width: 900px) {
-    .resume-columns-wrapper {
-      flex-direction: column;
-      gap: 0;
-    }
-    .resume-sidebar {
-      margin-top: 0;
-    }
-  }
+  .resume-grid { display: grid; grid-template-columns: minmax(0, 5fr) minmax(220px, 2fr); gap: 5vw; }
+  section { margin-bottom: 4rem; }
+  h2 { font-size: clamp(1.8rem, 1.5rem + 1.5vw, 2.8rem); margin: 0 0 2rem; padding-bottom: .5rem; border-bottom: 1px solid var(--text-muted); font-weight: 600; }
+  h3 { font-size: 1.2rem; margin-bottom: .5rem; }
+  article { margin-bottom: 2.5rem; }
+  article header { display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap; font-size: 1.15rem; }
+  time, .meta { font-family: var(--font-family-sans); color: var(--text-muted); font-size: .9rem; }
+  p, li { font-size: 1.05rem; line-height: 1.7; }
+  article p { margin: .6rem 0; }
+  article ul { padding-left: 1.4rem; }
+  .skill-group { margin-bottom: 2rem; }
+  .skill-group p { color: var(--text-muted); }
+  .plain { list-style: none; padding: 0; }
+  .plain li { margin-bottom: 1rem; }
+  @media (max-width: 900px) { .resume-grid { grid-template-columns: 1fr; } }
 </style>

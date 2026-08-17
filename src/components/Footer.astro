@@ -1,46 +1,39 @@
 ---
 // Component: src/components/Footer.astro
 const currentYear = new Date().getFullYear();
+import { profile, sitePath } from "../data/profile";
 ---
 
 <footer class="site-footer">
   <div class="footer-content">
     <div class="footer-column footer-column-1">
-      <h4>Nagare</h4>
-      <p class="footer-description">
-        A portfolio website template featuring simplicity, beauty and clarity.
-      </p>
-      <p class="copyright">&copy; {currentYear} Angine. All rights reserved.</p>
+      <h4>{profile.identity.fullName}</h4>
+      <p class="footer-description" data-i18n-fr={profile.positioning.fr.headline} data-i18n-en={profile.positioning.en.headline}>{profile.positioning.fr.headline}</p>
+      <p class="copyright">&copy; {currentYear} {profile.identity.fullName}.</p>
     </div>
     <div class="footer-column footer-column-2">
       <h4>Links</h4>
       <ul>
-        <li><a href="/" data-astro-prefetch>Home</a></li>
-        <li><a href="/timeline" data-astro-prefetch>Timeline</a></li>
-        <li><a href="/projects" data-astro-prefetch>Projects</a></li>
-        <li><a href="/resume" data-astro-prefetch>Résumé</a></li>
-        <li><a href="/contact" data-astro-prefetch>Contact</a></li>
+        <li><a href={sitePath("/")} data-astro-prefetch>Home</a></li>
+        <li><a href={sitePath("/timeline")} data-astro-prefetch>Timeline</a></li>
+        <li><a href={sitePath("/projects")} data-astro-prefetch>Projects</a></li>
+        <li><a href={sitePath("/resume")} data-astro-prefetch>Résumé</a></li>
+        <li><a href={sitePath("/contact")} data-astro-prefetch>Contact</a></li>
       </ul>
     </div>
     <div class="footer-column footer-column-3">
       <h4>Connect</h4>
       <ul>
-        <li>
+        {profile.contact.email && <li><a class="link" href={`mailto:${profile.contact.email}`}>Email</a></li>}
+        {profile.contact.linkedin && <li><a class="link" href={profile.contact.linkedin} target="_blank" rel="noopener noreferrer">LinkedIn</a></li>}
+        {profile.contact.github && <li>
           <a
             class="link"
-            href="https://github.com/angine04"
+            href={profile.contact.github}
             target="_blank"
             rel="noopener noreferrer">GitHub</a
           >
-        </li>
-        <li>
-          <a
-            class="link"
-            href="mailto:me@angine.tech"
-            target="_blank"
-            rel="noopener noreferrer">Email</a
-          >
-        </li>
+        </li>}
       </ul>
     </div>
   </div>

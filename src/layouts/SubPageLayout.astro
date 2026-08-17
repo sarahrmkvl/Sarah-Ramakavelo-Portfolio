@@ -1,23 +1,25 @@
 ---
 import Layout from "./Layout.astro";
 import { Icon } from "astro-icon/components";
+import { sitePath } from "../data/profile";
 
 interface Props {
   title: string;
+  titleEn?: string;
 }
 
-const { title } = Astro.props;
+const { title, titleEn = title } = Astro.props;
 ---
 
 <Layout title={title} showIndicatorOverride={false}>
   <main class="subpage-main">
     <div class="subpage-header">
       <span class="back-link-wrapper page-load-initial-state">
-        <a href="/" class="back-link">
+        <a href={sitePath("/")} class="back-link">
           <Icon name="ri:arrow-left-line" class="back-link-icon" />
         </a>
       </span>
-      <h1 class="subpage-title page-load-initial-state">{title}</h1>
+      <h1 class="subpage-title page-load-initial-state" data-i18n-fr={title} data-i18n-en={titleEn}>{title}</h1>
     </div>
     <div class="subpage-content page-load-initial-state">
       <slot />
