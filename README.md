@@ -1,6 +1,6 @@
-# Portfolio de Sarah Ramakavelo
+# Vue globale
 
-Portfolio bilingue français/anglais de **Sarah Ramakavelo**, étudiante en finance à l'EDHEC. Le site présente son parcours, ses expériences, sa formation, ses projets et ses centres d'intérêt dans une interface responsive.
+Bonjour, je m'appelle Sarah Ramakavelo, et j'ai envie de vous présenter mon profile hors des sentiers battus du CV. 
 
 Le contenu a été séparé du code afin de pouvoir mettre le portfolio à jour directement depuis GitHub, sans modifier les composants Astro.
 
@@ -126,9 +126,9 @@ Lors du premier déploiement, ouvrir **Settings → Pages** dans le dépôt GitH
 
 ## Crédits
 
-Conception et développement : **Henintsoa RAMAKAVELO - aka D-Star**.
+Conception et développement : **Henintsoa RAMAKAVELO** (Un remerciement à mon frère dont l'aide a été précieuse pour résoudre les vices de VS Code) 
 
-Ce portfolio est basé sur le template open source [Nagare](https://github.com/angine04/nagare) créé par [Angine Design](https://github.com/angine04), puis adapté pour Sarah Ramakavelo.
+Ce portfolio est basé sur le template open source [Nagare](https://github.com/angine04/nagare) créé par [Angine Design](https://github.com/angine04), puis adapté avec et pour Sarah Ramakavelo.
 
 ## Licence
 
