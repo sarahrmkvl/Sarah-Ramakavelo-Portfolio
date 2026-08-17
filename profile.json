@@ -17,16 +17,14 @@
   },
   "positioning": {
     "fr": {
-      "eyebrow": "Portfolio · Finance & Markets",
-      "headline": "Je relie les marchés, les clients et la donnée.",
-      "summary": "Étudiante en finance à l’EDHEC et Sales Assistant en Prime Services chez Société Générale CIB. J’explore comment le risque, la technologie et l’exécution façonnent les décisions d’investissement.",
-      "availability": "Ouverte aux opportunités internationales en Global Markets."
+      "eyebrow": "Hors des sentiers battus du CV...",
+      "headline": " Oscar Wilde disait: « Vivre est la chose la plus rare du monde. La plupart des gens ne font qu'exister ",
+      "summary": "J'ai à coeur de vivre à travers de belles expériences.",
     },
     "en": {
       "eyebrow": "Portfolio · Finance & Markets",
       "headline": "I connect markets, clients and data.",
       "summary": "Finance student at EDHEC and Prime Services Sales Assistant at Société Générale CIB. I explore how risk, technology and execution shape investment decisions.",
-      "availability": "Open to international opportunities in Global Markets."
     }
   },
   "highlights": [
