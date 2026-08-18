@@ -2,7 +2,7 @@
 
 Bonjour, je m'appelle Sarah Ramakavelo, et j'ai envie de vous présenter mon profile hors des sentiers battus du CV. 
 
-['here is the website'](sarahrmkvl.github.io/Sarah-Ramakavelo-Portfolio)
+[See the website](sarahrmkvl.github.io/Sarah-Ramakavelo-Portfolio)
 
 Le contenu a été séparé du code afin de pouvoir mettre le portfolio à jour directement depuis GitHub, sans modifier les composants Astro.
 
