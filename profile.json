@@ -5,7 +5,7 @@
   "identity": {
     "fullName": "Sarah Ramakavelo",
     "initials": "SR",
-    "basedIn": ["Paris", "Nice"],
+    "basedIn": ["Geneva", "Paris", "Nice"],
     "nationalityOrOrigins": ["France", "Madagascar"],
     "photo": null
   },
@@ -17,13 +17,13 @@
   },
   "positioning": {
     "fr": {
-      "eyebrow": "Portfolio · Professionnelle de Finance & du Marché",
+      "eyebrow": "Au delà du CV",
       "headline": "Je relie les marchés, les clients et la donnée.",
       "summary": "Étudiante en finance à l’EDHEC et Sales Assistant en Prime Services chez Société Générale CIB. J’explore comment le risque, la technologie et l’exécution façonnent les décisions d’investissement.",
       "availability": "Ouverte aux opportunités internationales en Global Markets."
     },
     "en": {
-      "eyebrow": "Portfolio · Finance & Markets",
+      "eyebrow": "Beyond CV",
       "headline": "I connect markets, clients and data.",
       "summary": "Finance student at EDHEC and Prime Services Sales Assistant at Société Générale CIB. I explore how risk, technology and execution shape investment decisions.",
       "availability": "Open to international opportunities in Global Markets."
