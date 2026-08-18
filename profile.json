@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.0",
   "profileType": "public-recruiter-portfolio",
-  "lastUpdated": "2026-08-17",
+  "lastUpdated": "2026-08-18",
   "identity": {
     "fullName": "Sarah Ramakavelo",
     "initials": "SR",
@@ -17,14 +17,16 @@
   },
   "positioning": {
     "fr": {
-      "eyebrow": "Hors des sentiers battus du CV...",
-      "headline": " Oscar Wilde disait: « Vivre est la chose la plus rare du monde. La plupart des gens ne font qu'exister ",
-      "summary": "J'ai à coeur de vivre à travers de belles expériences.",
+      "eyebrow": "Portfolio · Finance & Markets",
+      "headline": "Je relie les marchés, les clients et la donnée.",
+      "summary": "Étudiante en finance à l’EDHEC et Sales Assistant en Prime Services chez Société Générale CIB. J’explore comment le risque, la technologie et l’exécution façonnent les décisions d’investissement.",
+      "availability": "Ouverte aux opportunités internationales en Global Markets."
     },
     "en": {
       "eyebrow": "Portfolio · Finance & Markets",
       "headline": "I connect markets, clients and data.",
       "summary": "Finance student at EDHEC and Prime Services Sales Assistant at Société Générale CIB. I explore how risk, technology and execution shape investment decisions.",
+      "availability": "Open to international opportunities in Global Markets."
     }
   },
   "highlights": [
@@ -59,14 +61,14 @@
   ],
   "story": {
     "fr": {
-      "eyebrow": "Quelques pages avant le CV",
-      "title": "Ce qui me construit",
-      "subtitle": "Les lieux, les disciplines et les défis qui ont façonné mon parcours."
+      "eyebrow": "Devise personnelle",
+      "title": "Avancer, apprendre, recommencer — jusqu’à dépasser ce que je croyais possible.",
+      "subtitle": "Faire défiler pour découvrir mon parcours"
     },
     "en": {
-      "eyebrow": "A few pages before the résumé",
-      "title": "What shaped me",
-      "subtitle": "The places, disciplines and challenges that shaped my journey."
+      "eyebrow": "Personal motto",
+      "title": "Move forward, learn, begin again — until I go beyond what I thought was possible.",
+      "subtitle": "Scroll to discover my journey"
     },
     "cards": [
       {
@@ -76,8 +78,8 @@
         "kicker": { "fr": "Racines", "en": "Roots" },
         "title": { "fr": "Madagascar", "en": "Madagascar" },
         "text": {
-          "fr": "L’île rouge · une identité ouverte sur le monde",
-          "en": "The red island · an identity open to the world"
+          "fr": "L’île rouge, ses baobabs et des racines ouvertes sur le monde",
+          "en": "The red island, its baobabs and roots open to the world"
         }
       },
       {
@@ -96,10 +98,10 @@
         "icon": "70.3",
         "theme": "sport",
         "kicker": { "fr": "Endurance", "en": "Endurance" },
-        "title": { "fr": "Natation · Vélo · Course", "en": "Swim · Bike · Run" },
+        "title": { "fr": "Du lac au semi-marathon", "en": "From the lake to the half-marathon" },
         "text": {
-          "fr": "4 à 6 séances par semaine · avancer avec constance",
-          "en": "4 to 6 sessions a week · moving with consistency"
+          "fr": "Nager, courir, recommencer · 4 à 6 séances par semaine",
+          "en": "Swim, run, repeat · 4 to 6 sessions every week"
         }
       },
       {
@@ -107,10 +109,10 @@
         "icon": "△ ≈",
         "theme": "alpine",
         "kicker": { "fr": "Étape suisse", "en": "Swiss chapter" },
-        "title": { "fr": "Genève", "en": "Geneva" },
+        "title": { "fr": "Genève en mouvement", "en": "Geneva in motion" },
         "text": {
-          "fr": "Le lac · les montagnes · Syz Bank",
-          "en": "The lake · the mountains · Syz Bank"
+          "fr": "Le lac vu depuis les pistes · les Alpes · Syz Bank",
+          "en": "The lake seen from the slopes · the Alps · Syz Bank"
         }
       },
       {
@@ -118,10 +120,10 @@
         "icon": "CPGE",
         "theme": "ink",
         "kicker": { "fr": "2022 — 2024", "en": "2022 — 2024" },
-        "title": { "fr": "Versailles", "en": "Versailles" },
+        "title": { "fr": "Prépa & mathématiques", "en": "Prep school & mathematics" },
         "text": {
-          "fr": "Notre-Dame du Grandchamp · exigence et méthode",
-          "en": "Notre-Dame du Grandchamp · rigour and method"
+          "fr": "Des cahiers, le théorème de Lagrange · exigence et méthode",
+          "en": "Notebooks, Lagrange’s theorem · rigour and method"
         }
       },
       {
@@ -129,10 +131,10 @@
         "icon": "1·2·3",
         "theme": "podium",
         "kicker": { "fr": "Compétition", "en": "Competition" },
-        "title": { "fr": "Podiums", "en": "Podiums" },
+        "title": { "fr": "Podiums & lignes d’arrivée", "en": "Podiums & finish lines" },
         "text": {
-          "fr": "Le résultat visible d’un travail invisible",
-          "en": "The visible result of invisible work"
+          "fr": "Le résultat visible de kilomètres et d’efforts invisibles",
+          "en": "The visible result of invisible miles and effort"
         }
       },
       {
@@ -140,10 +142,10 @@
         "icon": "“ ”",
         "theme": "voice",
         "kicker": { "fr": "Éloquence · MUN", "en": "Public speaking · MUN" },
-        "title": { "fr": "Prendre la parole", "en": "Finding my voice" },
+        "title": { "fr": "Concours d’éloquence", "en": "Public speaking" },
         "text": {
-          "fr": "Défendre une idée · écouter · convaincre",
-          "en": "Defend an idea · listen · persuade"
+          "fr": "Monter sur scène · défendre une idée · convaincre un public",
+          "en": "Step on stage · defend an idea · persuade an audience"
         }
       },
       {
