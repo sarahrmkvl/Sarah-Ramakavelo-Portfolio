@@ -65,3 +65,34 @@
   font-size: 1.1rem;
   line-height: 1.7;
 }
+
+@media (max-width: 800px) {
+  .timeline-event {
+    padding-left: 2.25rem;
+    padding-bottom: 3rem;
+  }
+
+  .timeline-event:not(.is-last)::before {
+    left: 8px;
+    width: 1px;
+    background: linear-gradient(to bottom, rgb(255 255 255 / 55%), rgb(255 255 255 / 18%));
+  }
+
+  .timeline-marker {
+    left: 8px;
+    width: 12px;
+    height: 12px;
+    border: 2px solid rgb(255 255 255 / 88%);
+    box-shadow: 0 0 0 7px rgb(255 255 255 / 9%);
+  }
+
+  .timeline-event[data-category="experiences"] .timeline-marker {
+    background: #ffd35a;
+    box-shadow: 0 0 0 7px rgb(255 211 90 / 13%);
+  }
+
+  .timeline-event[data-category="education"] .timeline-marker {
+    background: #8de4ee;
+    box-shadow: 0 0 0 7px rgb(141 228 238 / 14%);
+  }
+}

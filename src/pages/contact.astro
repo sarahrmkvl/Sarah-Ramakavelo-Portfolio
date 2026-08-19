@@ -4,7 +4,7 @@ import { Icon } from "astro-icon/components";
 import { profile } from "../data/profile";
 ---
 
-<SubPageLayout title="Contact">
+<SubPageLayout title="Contact" backgroundTheme="purple" backgroundScene="contact">
   <div class="contact-content">
     <p class="intro-text" data-i18n-fr={profile.positioning.fr.availability} data-i18n-en={profile.positioning.en.availability}>{profile.positioning.fr.availability}</p>
     <p class="intro-text">{profile.identity.basedIn.join(" · ")}</p>

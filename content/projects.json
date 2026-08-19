@@ -57,7 +57,48 @@
         "en": "This project connects modern portfolio theory with a reproducible Python implementation."
       },
       "technologies": ["Python", "Pandas", "NumPy", "Matplotlib", "Seaborn", "Plotly"],
-      "images": []
+      "images": [
+        {
+          "src": "/images/projects/Analyze_Opti-Efficient_Frontier.png",
+          "alt": {
+            "fr": "Frontière efficiente et portefeuilles simulés selon leur ratio de Sharpe",
+            "en": "Efficient frontier and simulated portfolios by Sharpe ratio"
+          },
+          "caption": null
+        },
+        {
+          "src": "/images/projects/Analyze_Opti-Adjusted_Closing_Price.png",
+          "alt": {
+            "fr": "Évolution des cours de clôture ajustés du portefeuille analysé",
+            "en": "Adjusted closing-price evolution for the analysed portfolio"
+          },
+          "caption": null
+        },
+        {
+          "src": "/images/projects/Analyze_Opti-AmazonCandleStick.png",
+          "alt": {
+            "fr": "Graphique en chandeliers du cours de l’action Amazon",
+            "en": "Candlestick chart of Amazon stock prices"
+          },
+          "caption": null
+        },
+        {
+          "src": "/images/projects/Analyze_Opti-JPM_Returns.png",
+          "alt": {
+            "fr": "Visualisation des rendements de l’action JPMorgan",
+            "en": "Visualisation of JPMorgan stock returns"
+          },
+          "caption": null
+        },
+        {
+          "src": "/images/projects/Analyze_Opti-Python.png",
+          "alt": {
+            "fr": "Extrait de code Python pour l’analyse et l’optimisation de portefeuille",
+            "en": "Python code snippet for portfolio analysis and optimisation"
+          },
+          "caption": null
+        }
+      ]
     },
     {
       "id": "reconciliation-engine",
@@ -94,7 +135,16 @@
         "en": "The prototype shows how targeted automation can strengthen a control without hiding important exceptions."
       },
       "technologies": ["Python", "Data Matching", "Quality Checks"],
-      "images": []
+      "images": [
+        {
+          "src": "/images/projects/reconciliation-engine.webp",
+          "alt": {
+            "fr": "Visualisation abstraite de flux rapprochés et d’exceptions isolées",
+            "en": "Abstract visualisation of reconciled flows and isolated exceptions"
+          },
+          "caption": null
+        }
+      ]
     }
   ]
 }

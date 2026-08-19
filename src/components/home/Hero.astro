@@ -2,7 +2,11 @@
 import { languageAttributes, profile } from "../../data/profile";
 ---
 
-<section class="hero-section">
+<section
+  class="hero-section"
+  data-background-theme="green"
+  data-background-scene="origin"
+>
   <div class="hero-text">
     <div class="greeting" {...languageAttributes({ fr: profile.positioning.fr.eyebrow.replace("Portfolio · ", ""), en: profile.positioning.en.eyebrow.replace("Portfolio · ", "") })}>{profile.positioning.fr.eyebrow.replace("Portfolio · ", "")}</div>
     <div class="hero-name">{profile.identity.fullName}</div>

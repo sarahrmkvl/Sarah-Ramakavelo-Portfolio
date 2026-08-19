@@ -1,6 +1,6 @@
 # Modifier le portfolio de Sarah
 
-Le profil se trouve dans `profile.json` et les études de cas dans `projects.json`, à la racine du dépôt. Aucun fichier dans `src/` ne doit être modifié pour mettre à jour le contenu.
+Le profil se trouve dans `profile.json` et les études de cas dans `content/projects.json`. Aucun fichier dans `src/` ne doit être modifié pour mettre à jour le contenu.
 
 ## Modifier depuis GitHub
 
@@ -13,7 +13,7 @@ Le profil se trouve dans `profile.json` et les études de cas dans `projects.jso
 
 ## Ajouter ou modifier un projet
 
-Modifier `projects.json`. Chaque projet possède un identifiant `id` unique qui devient son adresse, par exemple `portfolio-optimisation` produit `/projects/portfolio-optimisation`.
+Modifier `content/projects.json`. Chaque projet possède un identifiant `id` unique qui devient son adresse, par exemple `portfolio-optimisation` produit `/projects/portfolio-optimisation`.
 
 Les champs `context`, `problem`, `method`, `results` et `learnings` construisent automatiquement la page détaillée. Les listes françaises et anglaises de `method` et `results` doivent garder le même ordre et la même longueur.
 

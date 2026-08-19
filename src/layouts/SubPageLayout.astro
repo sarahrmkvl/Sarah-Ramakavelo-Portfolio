@@ -6,16 +6,33 @@ import { sitePath } from "../data/profile";
 interface Props {
   title: string;
   titleEn?: string;
+  backgroundTheme?: string;
+  backgroundScene?: string;
+  backgroundProjectId?: string;
+  backHref?: string;
 }
 
-const { title, titleEn = title } = Astro.props;
+const {
+  title,
+  titleEn = title,
+  backgroundTheme = "white",
+  backgroundScene = "page",
+  backgroundProjectId = "",
+  backHref = sitePath("/"),
+} = Astro.props;
 ---
 
-<Layout title={title} showIndicatorOverride={false}>
+<Layout
+  title={title}
+  showIndicatorOverride={false}
+  {backgroundTheme}
+  {backgroundScene}
+  {backgroundProjectId}
+>
   <main class="subpage-main">
     <div class="subpage-header">
       <span class="back-link-wrapper page-load-initial-state">
-        <a href={sitePath("/")} class="back-link">
+        <a href={backHref} class="back-link">
           <Icon name="ri:arrow-left-line" class="back-link-icon" />
         </a>
       </span>
