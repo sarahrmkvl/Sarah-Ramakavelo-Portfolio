@@ -1,9 +1,78 @@
 ---
+import { profile, sitePath } from "../data/profile";
+import { projects } from "../data/projects";
 
+const educationTimeline = [...profile.education]
+  .sort((a, b) => a.startYear - b.startYear)
+  .map((education) => ({
+    school: education.school,
+    startYear: education.startYear,
+    endYear: education.endYear,
+  }));
+const projectConstellation = projects.map((project) => ({
+  id: project.id,
+  name: project.name,
+  technologies: project.technologies,
+  images: project.images.map((image) => ({
+    src: sitePath(image.src),
+    alt: image.alt.fr,
+  })),
+}));
+const experienceChart = [...profile.experience]
+  .sort((a, b) => a.startDate.localeCompare(b.startDate))
+  .map((experience) => ({
+    company: experience.company,
+    role: experience.role,
+    startDate: experience.startDate,
+    endDate: experience.endDate,
+    current: experience.current,
+    tags: experience.tags,
+  }));
+const beyondJourney = profile.story.cards.map((card) => ({
+  id: card.id,
+  title: card.title,
+}));
 ---
 
-<div id="dynamic-background-container">
+<div
+  id="dynamic-background-container"
+  transition:persist="dynamic-background"
+  data-education={JSON.stringify(educationTimeline)}
+  data-projects={JSON.stringify(projectConstellation)}
+  data-experience={JSON.stringify(experienceChart)}
+  data-beyond={JSON.stringify(beyondJourney)}
+>
+  <div class="education-campus-background" aria-hidden="true">
+    <img src={sitePath("/images/Edhec.jpg")} alt="" />
+  </div>
+  <div class="experience-photo-background" aria-hidden="true">
+    <img src={sitePath("/images/SG.jpg")} alt="" loading="lazy" decoding="async" data-experience-photo="0" />
+    <img src={sitePath("/images/syz.jpg")} alt="" loading="lazy" decoding="async" data-experience-photo="1" />
+    <img src={sitePath("/images/HSBC.jpg")} alt="" loading="lazy" decoding="async" data-experience-photo="2" />
+  </div>
   <svg id="dynamic-background-svg" width="100%" height="100%"></svg>
+  <div class="project-preview-layer" aria-hidden="true">
+    {
+      projectConstellation.flatMap((project) =>
+        project.images.map((image, imageIndex) => (
+          <figure
+            class="project-hover-preview"
+            data-preview-project={project.id}
+            data-preview-primary={imageIndex === 0 ? "true" : "false"}
+          >
+            <img src={image.src} alt={image.alt} loading="lazy" decoding="async" />
+            <div class="project-preview-tech-nodes">
+              {project.technologies.map((technology) => (
+                <span class="project-preview-tech-node" title={technology}>
+                  <i></i><b>{technology}</b>
+                </span>
+              ))}
+            </div>
+          </figure>
+        ))
+      )
+    }
+  </div>
 </div>
 
 <script>
@@ -11,6 +80,36 @@
   const svgContainer = document.getElementById(
     "dynamic-background-svg"
   ) as SVGElement | null;
+  const backgroundContainer = document.getElementById(
+    "dynamic-background-container"
+  );
+  const educationTimeline = JSON.parse(
+    backgroundContainer?.dataset.education || "[]"
+  ) as Array<{ school: string; startYear: number; endYear: number }>;
+  const projectConstellation = JSON.parse(
+    backgroundContainer?.dataset.projects || "[]"
+  ) as Array<{
+    id: string;
+    name: { fr: string; en: string };
+    technologies: string[];
+    images: Array<{ src: string; alt: string }>;
+  }>;
+  const experienceChart = JSON.parse(
+    backgroundContainer?.dataset.experience || "[]"
+  ) as Array<{
+    company: string;
+    role: { fr: string; en: string };
+    startDate: string;
+    endDate: string | null;
+    current: boolean;
+    tags: string[];
+  }>;
+  const beyondJourney = JSON.parse(
+    backgroundContainer?.dataset.beyond || "[]"
+  ) as Array<{
+    id: string;
+    title: { fr: string; en: string };
+  }>;
 
   if (svgContainer) {
     const isMobileDevice =
@@ -74,6 +173,41 @@
     let isDisposed = false;
     let mousePos: Vector | null = null;
     let svgGroup: SVGGElement | null = null;
+    let originNodeGroup: SVGGElement | null = null;
+    let networkGroup: SVGGElement | null = null;
+    let networkConnections: SVGPathElement[] = [];
+    let networkStateTimer: number | null = null;
+    let networkStateStep = 0;
+    const networkValues = Array.from(
+      { length: 18 },
+      (_, index) => ((index * 47) % 181) - 90
+    );
+    const networkMomentum = Array.from({ length: 18 }, () => 0);
+    const networkShock = Array.from({ length: 18 }, () => 0);
+    const networkBeta = Array.from(
+      { length: 18 },
+      (_, index) => 0.72 + ((index * 13) % 11) * 0.055
+    );
+    const sectorTrend = [0, 0, 0];
+    let marketTrend = 0;
+    let marketRegimeTarget = 0;
+    let educationGroup: SVGGElement | null = null;
+    let projectsGroup: SVGGElement | null = null;
+    let projectTechnologiesGroup: SVGGElement | null = null;
+    let experienceGroup: SVGGElement | null = null;
+    let beyondGroup: SVGGElement | null = null;
+    let contactGroup: SVGGElement | null = null;
+    let morphNodesGroup: SVGGElement | null = null;
+    let morphPathsGroup: SVGGElement | null = null;
+    let contactChannelTimer: number | null = null;
+    let contactChannelStep = 0;
+    let experiencePhotoTimer: number | null = null;
+    let activeExperiencePhoto = -1;
+    let projectPhotoTimer: number | null = null;
+    let ambientProjectPhoto = -1;
+    let activePreviewProjectId = "";
+    let activeProjectId =
+      document.body.dataset.backgroundProject || "";
     const targetOffset: Vector = { x: 0, y: 0 };
     const currentOffset: Vector = { x: 0, y: 0 };
     const offsetLerpFactor = 0.05;
@@ -135,17 +269,194 @@
       [key: string]: string[];
     }
     const colorScheme: ColorScheme = {
-      reds: ["#FF6B6B", "#FFD93D", "#F2bF47", "#F2B707", "#F28706", "#F26430"],
-      oranges: ["#FFa700", "#FF9B58", "#F27149", "#F9c443", "#faD93D"],
-      yellows: ["#FFD700", "#FFDB58", "#F2E109", "#F9D423", "#caD93D"],
-      greens: ["#90EE90", "#6BCB77", "#3CB371", "#32CD32", "#a0e9c4"],
-      cyans: ["#40E0D0", "#AFEEEE", "#7FFFD4", "#B3E0F2", "#9EfDF2"],
-      blues: ["#87CEEB", "#64f5ED", "#7De6FF", "#42d5FF", "#7299f9"],
-      forest: ["#64f5ED", "#F2E109", "#32CD32", "#32CD32", "#a0e9c4"],
-      purples: ["#996BcB", "#c2aFF7", "#8267d7", "#FF55ff", "#e264d0"],
-      browns: ["#8B4513", "#A0522D", "#D2691E", "#DAA520", "#8B3030"],
-      winter: ["#87CEEB", "#64f5ED", "#7De6FF", "#cccccc", "#ffffff"],
+      green: ["#143F3A", "#267466", "#4F9B7F", "#86C7A2"],
+      white: ["#FFFFFF", "#F4F1EA", "#DDE3DE", "#C8D2CC"],
+      blue: ["#163F66", "#286B9B", "#4C96BC", "#83C5D8"],
+      yellow: ["#E0A51B", "#F2C94C", "#F7DB79", "#C88718"],
+      ochre: ["#8F382A", "#B85C38", "#D1844D", "#D9A066"],
+      purple: ["#4D315F", "#76508A", "#9B72AB", "#C09AC7"],
     };
+    let activeColorScheme =
+      document.body.dataset.backgroundTheme || "green";
+    let activeBackgroundScene =
+      document.body.dataset.backgroundScene || "page";
+
+    function applyColorScheme(theme: string) {
+      const palette = colorScheme[theme] || colorScheme.green;
+      const normalizedTheme = colorScheme[theme] ? theme : "green";
+
+      if (normalizedTheme === activeColorScheme && blobs.length > 0) return;
+      activeColorScheme = normalizedTheme;
+
+      blobs.forEach((blob, index) => {
+        const color = palette[index % palette.length];
+        const hsl = hexToHsl(color);
+        blob.color = color;
+        if (hsl) blob.hsl = hsl;
+        blob.pathElement.setAttribute("fill", color);
+      });
+
+    }
+
+    const handleColorSchemeChange = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{
+          theme?: string;
+          scene?: string;
+          projectId?: string;
+        }>
+      ).detail;
+      const theme = detail?.theme;
+      if (theme) applyColorScheme(theme);
+      if (detail?.scene) {
+        applyBackgroundScene(detail.scene, detail.projectId || "");
+      }
+    };
+
+    document.addEventListener(
+      "portfolio:background-theme",
+      handleColorSchemeChange
+    );
+
+    const handleBackgroundProgress = (event: Event) => {
+      const detail = (
+        event as CustomEvent<{
+          fromScene?: string;
+          toScene?: string;
+          progress?: number;
+        }>
+      ).detail;
+      if (!detail?.fromScene || !detail.toScene) return;
+      updateMorphNodesProgress(
+        detail.fromScene,
+        detail.toScene,
+        Math.max(0, Math.min(1, detail.progress || 0))
+      );
+      updateMorphPathsProgress(
+        detail.fromScene,
+        detail.toScene,
+        Math.max(0, Math.min(1, detail.progress || 0))
+      );
+    };
+
+    document.addEventListener(
+      "portfolio:background-progress",
+      handleBackgroundProgress
+    );
+
+    const setProjectPreview = (projectId = "") => {
+      activePreviewProjectId = projectId;
+      const projectIndex = projectConstellation.findIndex(
+        (project) => project.id === projectId
+      );
+      const projectPoint = projectIndex >= 0
+        ? getProjectPoints(window.innerWidth, window.innerHeight)[projectIndex]
+        : null;
+      backgroundContainer
+        ?.querySelectorAll<HTMLElement>("[data-preview-project]")
+        .forEach((preview) => {
+          const isVisible = Boolean(
+            projectPoint &&
+            activeBackgroundScene === "projects" &&
+            preview.dataset.previewProject === projectId &&
+            preview.dataset.previewPrimary === "true"
+          );
+          preview.classList.toggle("is-visible", isVisible);
+          if (projectId) preview.classList.remove("is-ambient");
+          if (!isVisible || !projectPoint) return;
+
+          preview.style.setProperty("--project-node-x", `${projectPoint.x}px`);
+          preview.style.setProperty("--project-node-y", `${projectPoint.y}px`);
+        });
+      if (projectId) {
+        stopProjectPhotoRotation();
+      } else if (activeBackgroundScene === "projects") {
+        startProjectPhotoRotation();
+      }
+    };
+
+    const showNextProjectPhoto = () => {
+      if (activePreviewProjectId) return;
+      const previews = Array.from(
+        backgroundContainer?.querySelectorAll<HTMLElement>(
+          "[data-preview-project]"
+        ) || []
+      );
+      if (previews.length === 0) return;
+      let nextIndex = Math.floor(Math.random() * previews.length);
+      if (previews.length > 1 && nextIndex === ambientProjectPhoto) {
+        nextIndex = (nextIndex + 1 + Math.floor(Math.random() * (previews.length - 1))) % previews.length;
+      }
+      ambientProjectPhoto = nextIndex;
+      previews.forEach((preview, index) => {
+        preview.classList.toggle("is-ambient", index === nextIndex);
+      });
+    };
+
+    const startProjectPhotoRotation = () => {
+      if (projectPhotoTimer !== null || activePreviewProjectId) return;
+      showNextProjectPhoto();
+      projectPhotoTimer = window.setInterval(showNextProjectPhoto, 5800);
+    };
+
+    const stopProjectPhotoRotation = () => {
+      if (projectPhotoTimer !== null) {
+        window.clearInterval(projectPhotoTimer);
+        projectPhotoTimer = null;
+      }
+      backgroundContainer
+        ?.querySelectorAll<HTMLElement>("[data-preview-project]")
+        .forEach((preview) => preview.classList.remove("is-ambient"));
+    };
+
+    const showNextExperiencePhoto = () => {
+      const photos = Array.from(
+        backgroundContainer?.querySelectorAll<HTMLElement>(
+          "[data-experience-photo]"
+        ) || []
+      );
+      if (photos.length === 0) return;
+      let nextIndex = Math.floor(Math.random() * photos.length);
+      if (photos.length > 1 && nextIndex === activeExperiencePhoto) {
+        nextIndex = (nextIndex + 1 + Math.floor(Math.random() * (photos.length - 1))) % photos.length;
+      }
+      activeExperiencePhoto = nextIndex;
+      photos.forEach((photo, index) => {
+        photo.classList.toggle("is-active", index === nextIndex);
+      });
+    };
+
+    const startExperiencePhotoRotation = () => {
+      if (experiencePhotoTimer !== null) return;
+      showNextExperiencePhoto();
+      experiencePhotoTimer = window.setInterval(showNextExperiencePhoto, 5200);
+    };
+
+    const stopExperiencePhotoRotation = () => {
+      if (experiencePhotoTimer !== null) {
+        window.clearInterval(experiencePhotoTimer);
+        experiencePhotoTimer = null;
+      }
+    };
+
+    const handleProjectPreviewEnter = (event: Event) => {
+      const target = event.target as Element | null;
+      const trigger = target?.closest<HTMLElement>("[data-project-preview]");
+      if (trigger) setProjectPreview(trigger.dataset.projectPreview || "");
+    };
+
+    const handleProjectPreviewLeave = (event: Event) => {
+      const target = event.target as Element | null;
+      const trigger = target?.closest<HTMLElement>("[data-project-preview]");
+      if (!trigger) return;
+      const nextTarget = (event as PointerEvent | FocusEvent).relatedTarget as Node | null;
+      if (!nextTarget || !trigger.contains(nextTarget)) setProjectPreview();
+    };
+
+    document.addEventListener("pointerover", handleProjectPreviewEnter);
+    document.addEventListener("pointerout", handleProjectPreviewLeave);
+    document.addEventListener("focusin", handleProjectPreviewEnter);
+    document.addEventListener("focusout", handleProjectPreviewLeave);
 
     function random(min: number, max: number): number {
       return Math.random() * (max - min) + min;
@@ -259,6 +570,2105 @@
       return array;
     }
 
+    function applyBackgroundScene(
+      scene: string,
+      projectId = activeProjectId
+    ) {
+      activeBackgroundScene = scene;
+      activeProjectId = projectId;
+      if (originNodeGroup) {
+        originNodeGroup.dataset.scene = scene;
+      }
+      if (networkGroup) {
+        networkGroup.dataset.scene = scene;
+      }
+      if (educationGroup) {
+        educationGroup.dataset.scene = scene;
+      }
+      if (projectsGroup) {
+        projectsGroup.dataset.scene = scene;
+      }
+      if (projectTechnologiesGroup) {
+        projectTechnologiesGroup.dataset.scene = scene;
+      }
+      if (experienceGroup) {
+        experienceGroup.dataset.scene = scene;
+      }
+      if (beyondGroup) {
+        beyondGroup.dataset.scene = scene;
+      }
+      if (contactGroup) {
+        contactGroup.dataset.scene = scene;
+      }
+      if (experienceGroup) {
+        updateExperienceGeometry(window.innerWidth, window.innerHeight);
+      }
+      updateMorphPaths(scene);
+      updateMorphNodes(scene);
+      updateProjectDetailState();
+      if (scene === "projects") {
+        if (!activePreviewProjectId) startProjectPhotoRotation();
+      } else {
+        activePreviewProjectId = "";
+        stopProjectPhotoRotation();
+        backgroundContainer
+          ?.querySelectorAll<HTMLElement>("[data-preview-project]")
+          .forEach((preview) => preview.classList.remove("is-visible"));
+      }
+      if (scene === "experience" || scene === "timeline") {
+        startExperiencePhotoRotation();
+      } else {
+        stopExperiencePhotoRotation();
+      }
+
+      if (scene === "network") {
+        startNetworkStateChanges();
+      } else {
+        stopNetworkStateChanges();
+      }
+      if (scene === "contact") {
+        startContactChannelChanges();
+      } else {
+        stopContactChannelChanges();
+      }
+    }
+
+    const networkSatelliteCount = 18;
+    const networkCenterIndex = networkSatelliteCount;
+    const networkEdges = [
+      [networkCenterIndex, 0],
+      [networkCenterIndex, 1],
+      [networkCenterIndex, 2],
+      [networkCenterIndex, 3],
+      [networkCenterIndex, 4],
+      [networkCenterIndex, 5],
+      [networkCenterIndex, 6],
+      [networkCenterIndex, 11],
+      [networkCenterIndex, 12],
+      [networkCenterIndex, 14],
+      [0, 1],
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 0],
+      [0, 5],
+      [2, 4],
+      [0, 7],
+      [7, 8],
+      [8, 9],
+      [9, 5],
+      [8, 16],
+      [9, 10],
+      [10, 15],
+      [1, 14],
+      [14, 17],
+      [17, 7],
+      [1, 11],
+      [11, 12],
+      [12, 2],
+      [12, 13],
+      [13, 3],
+      [13, 15],
+      [15, 4],
+      [10, 16],
+    ];
+
+    function getNetworkPoints(
+      containerWidth: number,
+      containerHeight: number
+    ): Vector[] {
+      const compact = isMobileDevice;
+      return [
+        { x: containerWidth * 0.58, y: containerHeight * 0.24 },
+        { x: containerWidth * 0.78, y: containerHeight * 0.18 },
+        { x: containerWidth * 0.91, y: containerHeight * 0.35 },
+        { x: containerWidth * 0.88, y: containerHeight * 0.63 },
+        { x: containerWidth * 0.71, y: containerHeight * 0.76 },
+        { x: containerWidth * (compact ? 0.43 : 0.53), y: containerHeight * 0.68 },
+        { x: containerWidth * (compact ? 0.45 : 0.5), y: containerHeight * 0.43 },
+        { x: containerWidth * 0.35, y: containerHeight * 0.18 },
+        { x: containerWidth * 0.18, y: containerHeight * 0.34 },
+        { x: containerWidth * 0.28, y: containerHeight * 0.62 },
+        { x: containerWidth * 0.12, y: containerHeight * 0.78 },
+        { x: containerWidth * 1.06, y: containerHeight * 0.14 },
+        { x: containerWidth * 1.1, y: containerHeight * 0.48 },
+        { x: containerWidth * 1.04, y: containerHeight * 0.82 },
+        { x: containerWidth * 0.72, y: containerHeight * -0.1 },
+        { x: containerWidth * 0.42, y: containerHeight * 1.1 },
+        { x: containerWidth * -0.08, y: containerHeight * 0.52 },
+        { x: containerWidth * 0.3, y: containerHeight * -0.12 },
+        {
+          x: containerWidth * (compact ? 0.78 : 0.74),
+          y: containerHeight * (compact ? 0.42 : 0.48),
+        },
+      ];
+    }
+
+    function createNetworkScene(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      networkGroup = document.createElementNS(svgNS, "g");
+      networkGroup.setAttribute("class", "background-network-scene");
+      networkGroup.setAttribute("aria-hidden", "true");
+      networkGroup.dataset.scene = activeBackgroundScene;
+
+      networkEdges.forEach((_, index) => {
+        const connection = document.createElementNS(svgNS, "path");
+        connection.setAttribute("class", "network-connection");
+        connection.dataset.edge = String(index);
+        connection.dataset.state = index === 9 || index === 14 ? "cut" : "open";
+        networkConnections.push(connection);
+        networkGroup!.appendChild(connection);
+      });
+
+      for (let index = 0; index < networkSatelliteCount; index++) {
+        const halo = document.createElementNS(svgNS, "circle");
+        halo.setAttribute("class", "network-node-halo");
+        halo.dataset.node = String(index);
+        networkGroup.appendChild(halo);
+
+        const node = document.createElementNS(svgNS, "circle");
+        node.setAttribute("class", "network-node");
+        node.dataset.node = String(index);
+        node.dataset.tone =
+          index % 7 === 2 ? "red" : index % 7 === 4 ? "amber" : "green";
+        networkGroup.appendChild(node);
+
+        const value = document.createElementNS(svgNS, "text");
+        value.setAttribute("class", "network-node-value");
+        value.dataset.node = String(index);
+        value.dataset.tone = networkValues[index] >= 0 ? "positive" : "negative";
+        value.textContent = `${networkValues[index] >= 0 ? "+" : ""}${networkValues[index]}%`;
+        networkGroup.appendChild(value);
+      }
+
+      const regimeAnnotation = document.createElementNS(svgNS, "text");
+      regimeAnnotation.setAttribute(
+        "class",
+        "market-annotation market-regime-annotation"
+      );
+      networkGroup.appendChild(regimeAnnotation);
+
+      for (let index = 0; index < 2; index++) {
+        const actionAnnotation = document.createElementNS(svgNS, "text");
+        actionAnnotation.setAttribute(
+          "class",
+          "market-annotation market-action-annotation"
+        );
+        actionAnnotation.dataset.annotation = String(index);
+        networkGroup.appendChild(actionAnnotation);
+      }
+
+      svgContainer!.insertBefore(networkGroup, originNodeGroup);
+      updateNetworkGeometry(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene);
+    }
+
+    function updateNetworkGeometry(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (!networkGroup) return;
+      const points = getNetworkPoints(containerWidth, containerHeight);
+
+      networkConnections.forEach((connection, index) => {
+        const [fromIndex, toIndex] = networkEdges[index];
+        const from = points[fromIndex];
+        const to = points[toIndex];
+        const midpointX = (from.x + to.x) / 2;
+        const midpointY = (from.y + to.y) / 2;
+        const bend = (index % 3 - 1) * Math.min(containerWidth, containerHeight) * 0.035;
+        connection.setAttribute(
+          "d",
+          `M ${from.x} ${from.y} Q ${midpointX - bend} ${midpointY + bend} ${to.x} ${to.y}`
+        );
+      });
+
+      for (let index = 0; index < networkSatelliteCount; index++) {
+        const point = points[index];
+        const radius = index % 4 === 0 ? 7 : index > 10 ? 4 : 5;
+        networkGroup
+          .querySelector<SVGCircleElement>(
+            `.network-node[data-node="${index}"]`
+          )
+          ?.setAttribute("cx", String(point.x));
+        networkGroup
+          .querySelector<SVGCircleElement>(
+            `.network-node[data-node="${index}"]`
+          )
+          ?.setAttribute("cy", String(point.y));
+        networkGroup
+          .querySelector<SVGCircleElement>(
+            `.network-node[data-node="${index}"]`
+          )
+          ?.setAttribute("r", String(radius));
+        networkGroup
+          .querySelector<SVGCircleElement>(
+            `.network-node-halo[data-node="${index}"]`
+          )
+          ?.setAttribute("cx", String(point.x));
+        networkGroup
+          .querySelector<SVGCircleElement>(
+            `.network-node-halo[data-node="${index}"]`
+          )
+          ?.setAttribute("cy", String(point.y));
+        networkGroup
+          .querySelector<SVGCircleElement>(
+            `.network-node-halo[data-node="${index}"]`
+          )
+          ?.setAttribute("r", String(radius * 2.8));
+        const value = networkGroup.querySelector<SVGTextElement>(
+          `.network-node-value[data-node="${index}"]`
+        );
+        value?.setAttribute("x", String(point.x));
+        value?.setAttribute("y", String(point.y - radius * 3.8));
+      }
+      const center = points[networkCenterIndex];
+      const regimeAnnotation = networkGroup.querySelector<SVGTextElement>(
+        ".market-regime-annotation"
+      );
+      regimeAnnotation?.setAttribute("x", String(center.x));
+      regimeAnnotation?.setAttribute("y", String(center.y - 48));
+    }
+
+    function flashMarketAnnotation(
+      annotation: SVGTextElement,
+      fr: string,
+      en: string,
+      tone: string
+    ) {
+      annotation.dataset.i18nFr = fr;
+      annotation.dataset.i18nEn = en;
+      annotation.dataset.tone = tone;
+      annotation.textContent = document.documentElement.lang === "en" ? en : fr;
+      annotation.classList.remove("is-visible");
+      annotation.getBoundingClientRect();
+      annotation.classList.add("is-visible");
+    }
+
+    function updateNetworkStates() {
+      if (activeBackgroundScene !== "network") return;
+
+      const previousValues = [...networkValues];
+      const previousMomentum = [...networkMomentum];
+      const previousShock = [...networkShock];
+      const centeredNoise = () =>
+        Math.random() + Math.random() + Math.random() - 1.5;
+
+      if (Math.random() < 0.012) {
+        const regimeRoll = Math.random();
+        marketRegimeTarget = regimeRoll < 0.32
+          ? -5 - Math.random() * 5
+          : regimeRoll > 0.68
+            ? 5 + Math.random() * 5
+            : centeredNoise() * 2;
+      }
+      marketTrend =
+        marketTrend * 0.88 +
+        marketRegimeTarget * 0.12 +
+        centeredNoise() * 1.25;
+      sectorTrend.forEach((trend, sector) => {
+        sectorTrend[sector] =
+          trend * 0.82 + marketTrend * 0.1 + centeredNoise() * 2.2;
+      });
+
+      if (Math.random() < 0.004) {
+        const epicenter = Math.floor(Math.random() * networkSatelliteCount);
+        const shockDirection = Math.random() > 0.52 ? 1 : -1;
+        networkShock[epicenter] +=
+          shockDirection * (240 + Math.random() * 240);
+      }
+
+      previousValues.forEach((currentValue, index) => {
+        const neighborMomentum: number[] = [];
+        const neighborShock: number[] = [];
+        networkEdges.forEach(([fromIndex, toIndex], edgeIndex) => {
+          if (networkConnections[edgeIndex]?.dataset.state === "cut") return;
+          if (fromIndex === index) {
+            if (toIndex !== networkCenterIndex) {
+              neighborMomentum.push(previousMomentum[toIndex]);
+              neighborShock.push(previousShock[toIndex]);
+            }
+          } else if (toIndex === index) {
+            if (fromIndex !== networkCenterIndex) {
+              neighborMomentum.push(previousMomentum[fromIndex]);
+              neighborShock.push(previousShock[fromIndex]);
+            }
+          }
+        });
+
+        const momentumContagion = neighborMomentum.length > 0
+          ? neighborMomentum.reduce((sum, value) => sum + value, 0) /
+            neighborMomentum.length
+          : 0;
+        const shockContagion = neighborShock.length > 0
+          ? neighborShock.reduce((sum, value) => sum + value, 0) /
+            neighborShock.length
+          : 0;
+        const ownShock = networkShock[index];
+        const meanReversion = -currentValue *
+          (Math.abs(currentValue) > 350 ? 0.09 : 0.012);
+        const diversificationFactor = neighborMomentum.length === 0
+          ? 1.45
+          : Math.max(0.72, 1.08 - neighborMomentum.length * 0.16);
+        const idiosyncraticNoise = centeredNoise() * 5.5 * diversificationFactor;
+
+        networkMomentum[index] =
+          previousMomentum[index] * 0.68 +
+          marketTrend * networkBeta[index] * 0.42 +
+          sectorTrend[index % sectorTrend.length] * 0.34 +
+          momentumContagion * 0.38 +
+          shockContagion * 0.18 +
+          ownShock * 0.44 +
+          meanReversion;
+        networkMomentum[index] += idiosyncraticNoise;
+        networkMomentum[index] = Math.max(
+          -170,
+          Math.min(170, networkMomentum[index])
+        );
+        networkValues[index] = Math.round(
+          Math.max(-500, Math.min(500, currentValue + networkMomentum[index]))
+        );
+        networkShock[index] =
+          ownShock * 0.54 + shockContagion * 0.16;
+      });
+
+      const connectionCandidates = networkConnections.map((connection, edgeIndex) => {
+        const [fromIndex, toIndex] = networkEdges[edgeIndex];
+        const fromValue = fromIndex === networkCenterIndex ? 0 : networkValues[fromIndex];
+        const toValue = toIndex === networkCenterIndex ? 0 : networkValues[toIndex];
+        const fromMomentum = fromIndex === networkCenterIndex ? marketTrend : networkMomentum[fromIndex];
+        const toMomentum = toIndex === networkCenterIndex ? marketTrend : networkMomentum[toIndex];
+        const signal = (fromValue + toValue) / 2;
+        const signalMomentum = (fromMomentum + toMomentum) / 2;
+        const isOpen = connection.dataset.state !== "cut";
+        let shouldBuy = isOpen;
+
+        if (isOpen) {
+          const takeProfit = signal >= -25 && signal <= 450 &&
+            signal / 450 + Math.max(0, -signalMomentum) / 120 > 0.72;
+          const stopLoss = signal < -360 && signalMomentum < -35;
+          if (signal > 450 || takeProfit || stopLoss) shouldBuy = false;
+        } else {
+          const undervalued = signal >= -500 && signal <= 25;
+          const recovery = signalMomentum > -8 || signal < -180;
+          if (undervalued && recovery) shouldBuy = true;
+        }
+
+        if (Math.random() < 0.025) shouldBuy = !shouldBuy;
+        const priority =
+          (isOpen ? 34 : 0) +
+          Math.max(-20, Math.min(42, (25 - signal) * 0.09)) +
+          Math.max(-18, Math.min(18, signalMomentum * 0.22)) +
+          Math.random() * 3;
+        return {
+          connection,
+          edgeIndex,
+          fromIndex,
+          toIndex,
+          shouldBuy,
+          priority,
+          wasOpen: isOpen,
+        };
+      });
+
+      const connectionDegree = Array.from(
+        { length: networkSatelliteCount + 1 },
+        () => 0
+      );
+      const riskCapacity = (nodeIndex: number) =>
+        nodeIndex === networkCenterIndex ? 5 : nodeIndex % 3 === 0 ? 1 : 2;
+
+      connectionCandidates
+        .sort((a, b) => b.priority - a.priority)
+        .forEach((candidate) => {
+          const hasCapacity =
+            connectionDegree[candidate.fromIndex] < riskCapacity(candidate.fromIndex) &&
+            connectionDegree[candidate.toIndex] < riskCapacity(candidate.toIndex);
+          const staysOpen = candidate.shouldBuy && hasCapacity;
+          candidate.connection.dataset.state = staysOpen ? "open" : "cut";
+          candidate.connection.dataset.action = staysOpen
+            ? "buy"
+            : candidate.shouldBuy ? "risk-limit" : "sell";
+          if (staysOpen) {
+            connectionDegree[candidate.fromIndex]++;
+            connectionDegree[candidate.toIndex]++;
+          }
+        });
+
+      const networkPoints = getNetworkPoints(window.innerWidth, window.innerHeight);
+      const changedConnections = connectionCandidates
+        .filter((candidate) =>
+          candidate.wasOpen !== (candidate.connection.dataset.state === "open")
+        )
+        .sort((a, b) => b.priority - a.priority)
+        .slice(0, 2);
+      changedConnections.forEach((candidate, index) => {
+        const annotation = networkGroup?.querySelector<SVGTextElement>(
+          `.market-action-annotation[data-annotation="${index}"]`
+        );
+        if (!annotation) return;
+        const from = networkPoints[candidate.fromIndex];
+        const to = networkPoints[candidate.toIndex];
+        annotation.setAttribute("x", String((from.x + to.x) / 2));
+        annotation.setAttribute("y", String((from.y + to.y) / 2 - 12));
+        const action = candidate.connection.dataset.action;
+        if (action === "buy") {
+          flashMarketAnnotation(annotation, "ACHAT", "BUY", "positive");
+        } else if (action === "risk-limit") {
+          flashMarketAnnotation(
+            annotation,
+            "LIMITE RISQUE",
+            "RISK LIMIT",
+            "neutral"
+          );
+        } else {
+          flashMarketAnnotation(annotation, "VENTE", "SELL", "negative");
+        }
+      });
+
+      if (networkStateStep % 3 === 0) {
+        const regimeAnnotation = networkGroup?.querySelector<SVGTextElement>(
+          ".market-regime-annotation"
+        );
+        if (regimeAnnotation) {
+          if (marketTrend > 2.5) {
+            flashMarketAnnotation(
+              regimeAnnotation,
+              "MARCHÉ HAUSSIER",
+              "BULLISH MARKET",
+              "positive"
+            );
+          } else if (marketTrend < -2.5) {
+            flashMarketAnnotation(
+              regimeAnnotation,
+              "MARCHÉ BAISSIER",
+              "BEARISH MARKET",
+              "negative"
+            );
+          } else {
+            flashMarketAnnotation(
+              regimeAnnotation,
+              "MARCHÉ NEUTRE",
+              "NEUTRAL MARKET",
+              "neutral"
+            );
+          }
+        }
+      }
+
+      networkGroup
+        ?.querySelectorAll<SVGCircleElement>(".network-node")
+        .forEach((node, index) => {
+          node.dataset.tone = networkValues[index] >= 0 ? "green" : "red";
+        });
+      networkGroup
+        ?.querySelectorAll<SVGTextElement>(".network-node-value")
+        .forEach((label, index) => {
+          const value = networkValues[index];
+          label.dataset.tone = value >= 0 ? "positive" : "negative";
+          label.textContent = `${value >= 0 ? "+" : ""}${value}%`;
+        });
+      networkStateStep++;
+      if (morphNodesGroup?.dataset.interpolating !== "true") {
+        updateMorphNodes("network");
+        updateMorphPaths("network");
+      }
+    }
+
+    function startNetworkStateChanges() {
+      if (networkStateTimer !== null || networkConnections.length === 0) return;
+      updateNetworkStates();
+      networkStateTimer = window.setInterval(updateNetworkStates, 1400);
+    }
+
+    function stopNetworkStateChanges() {
+      if (networkStateTimer !== null) {
+        window.clearInterval(networkStateTimer);
+        networkStateTimer = null;
+      }
+    }
+
+    function getCurrentEducationIndex() {
+      if (educationTimeline.length === 0) return -1;
+      const currentYear = new Date().getFullYear();
+      const activeIndex = educationTimeline.findIndex(
+        (education) =>
+          education.startYear <= currentYear &&
+          education.endYear >= currentYear
+      );
+      return activeIndex >= 0 ? activeIndex : educationTimeline.length - 1;
+    }
+
+    function getEducationPoints(
+      containerWidth: number,
+      containerHeight: number
+    ): Vector[] {
+      const currentIndex = getCurrentEducationIndex();
+      const center = {
+        x: containerWidth * (isMobileDevice ? 0.78 : 0.74),
+        y: containerHeight * (isMobileDevice ? 0.42 : 0.48),
+      };
+      const spacing = Math.min(
+        isMobileDevice ? containerWidth * 0.34 : containerWidth * 0.3,
+        isMobileDevice ? 170 : 420
+      );
+
+      return educationTimeline.map((_, index) => ({
+        x: center.x + (index - currentIndex) * spacing,
+        y: center.y + (index - currentIndex) * (isMobileDevice ? -18 : -28),
+      }));
+    }
+
+    function createEducationScene(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (educationTimeline.length === 0) return;
+
+      educationGroup = document.createElementNS(svgNS, "g");
+      educationGroup.setAttribute("class", "background-education-scene");
+      educationGroup.setAttribute("aria-hidden", "true");
+      educationGroup.dataset.scene = activeBackgroundScene;
+
+      const timeline = document.createElementNS(svgNS, "path");
+      timeline.setAttribute("class", "education-timeline-line");
+      educationGroup.appendChild(timeline);
+
+      const currentIndex = getCurrentEducationIndex();
+      educationTimeline.forEach((education, index) => {
+        if (index !== currentIndex) {
+          const halo = document.createElementNS(svgNS, "circle");
+          halo.setAttribute("class", "education-node-halo");
+          halo.dataset.education = String(index);
+          educationGroup!.appendChild(halo);
+
+          const node = document.createElementNS(svgNS, "circle");
+          node.setAttribute("class", "education-node");
+          node.dataset.education = String(index);
+          educationGroup!.appendChild(node);
+        }
+
+        const date = document.createElementNS(svgNS, "text");
+        date.setAttribute(
+          "class",
+          index === currentIndex
+            ? "education-date education-date-current"
+            : "education-date"
+        );
+        date.dataset.education = String(index);
+        date.textContent = `${education.startYear} — ${education.endYear}`;
+        educationGroup!.appendChild(date);
+      });
+
+      svgContainer!.insertBefore(educationGroup, originNodeGroup);
+      updateEducationGeometry(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene);
+    }
+
+    function updateEducationGeometry(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (!educationGroup || educationTimeline.length === 0) return;
+      const points = getEducationPoints(containerWidth, containerHeight);
+      const firstPoint = points[0];
+      const lastPoint = points[points.length - 1];
+      const lineStart = {
+        x: Math.min(-60, firstPoint.x - containerWidth * 0.22),
+        y: firstPoint.y + 20,
+      };
+      const lineEnd = {
+        x: Math.max(containerWidth + 60, lastPoint.x + containerWidth * 0.22),
+        y: lastPoint.y - 20,
+      };
+      const pathParts = [
+        `M ${lineStart.x} ${lineStart.y}`,
+        ...points.map((point) => `L ${point.x} ${point.y}`),
+        `L ${lineEnd.x} ${lineEnd.y}`,
+      ];
+      educationGroup
+        .querySelector<SVGPathElement>(".education-timeline-line")
+        ?.setAttribute("d", pathParts.join(" "));
+
+      const currentIndex = getCurrentEducationIndex();
+      educationTimeline.forEach((_, index) => {
+        const point = points[index];
+        const date = educationGroup!.querySelector<SVGTextElement>(
+          `.education-date[data-education="${index}"]`
+        );
+        if (index !== currentIndex) {
+          const node = educationGroup!.querySelector<SVGCircleElement>(
+            `.education-node[data-education="${index}"]`
+          );
+          const halo = educationGroup!.querySelector<SVGCircleElement>(
+            `.education-node-halo[data-education="${index}"]`
+          );
+          node?.setAttribute("cx", String(point.x));
+          node?.setAttribute("cy", String(point.y));
+          node?.setAttribute("r", isMobileDevice ? "7" : "9");
+          halo?.setAttribute("cx", String(point.x));
+          halo?.setAttribute("cy", String(point.y));
+          halo?.setAttribute("r", isMobileDevice ? "19" : "25");
+        }
+        date?.setAttribute("x", String(point.x));
+        date?.setAttribute("y", String(point.y - (isMobileDevice ? 25 : 34)));
+      });
+    }
+
+    function getProjectPoints(
+      containerWidth: number,
+      containerHeight: number
+    ): Vector[] {
+      const positions = [
+        { x: 0.5, y: 0.27 },
+        { x: 0.78, y: 0.68 },
+        { x: 0.92, y: 0.2 },
+        { x: 0.48, y: 0.73 },
+        { x: 1.06, y: 0.43 },
+        { x: 0.7, y: -0.08 },
+        { x: 0.68, y: 1.08 },
+        { x: 0.32, y: 0.48 },
+      ];
+
+      return projectConstellation.map((_, index) => {
+        const position = positions[index % positions.length];
+        const ring = Math.floor(index / positions.length);
+        const center = {
+          x: isMobileDevice ? 0.78 : 0.74,
+          y: isMobileDevice ? 0.42 : 0.48,
+        };
+        const distanceFactor = isMobileDevice ? 0.46 : 0.3;
+        return {
+          x: containerWidth * (center.x + (position.x - center.x) * distanceFactor) + ring * 32,
+          y: containerHeight * (center.y + (position.y - center.y) * distanceFactor) + ring * 24,
+        };
+      });
+    }
+
+    function createProjectsScene(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (projectConstellation.length === 0) return;
+
+      projectsGroup = document.createElementNS(svgNS, "g");
+      projectsGroup.setAttribute("class", "background-projects-scene");
+      projectsGroup.setAttribute("aria-hidden", "true");
+      projectsGroup.dataset.scene = activeBackgroundScene;
+
+      projectConstellation.forEach((project, index) => {
+        const connection = document.createElementNS(svgNS, "path");
+        connection.setAttribute("class", "project-connection");
+        connection.dataset.project = String(index);
+        projectsGroup!.appendChild(connection);
+
+        const halo = document.createElementNS(svgNS, "circle");
+        halo.setAttribute("class", "project-node-halo");
+        halo.dataset.project = String(index);
+        projectsGroup!.appendChild(halo);
+
+        const ring = document.createElementNS(svgNS, "circle");
+        ring.setAttribute("class", "project-node-ring");
+        ring.dataset.project = String(index);
+        projectsGroup!.appendChild(ring);
+
+        const node = document.createElementNS(svgNS, "circle");
+        node.setAttribute("class", "project-node");
+        node.dataset.project = String(index);
+        node.dataset.tone = index % 3 === 0 ? "cyan" : index % 3 === 1 ? "blue" : "white";
+        node.dataset.projectId = project.id;
+        projectsGroup!.appendChild(node);
+
+        const title = document.createElementNS(svgNS, "text");
+        title.setAttribute("class", "project-node-title");
+        title.dataset.project = String(index);
+        title.dataset.i18nFr = project.name.fr;
+        title.dataset.i18nEn = project.name.en;
+        title.textContent = project.name.fr;
+        projectsGroup!.appendChild(title);
+      });
+
+      svgContainer!.insertBefore(projectsGroup, originNodeGroup);
+      createProjectTechnologyClusters();
+      updateProjectsGeometry(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene);
+    }
+
+    function createProjectTechnologyClusters() {
+      projectTechnologiesGroup = document.createElementNS(svgNS, "g");
+      projectTechnologiesGroup.setAttribute(
+        "class",
+        "background-project-technologies"
+      );
+      projectTechnologiesGroup.setAttribute("aria-hidden", "true");
+      projectTechnologiesGroup.dataset.scene = activeBackgroundScene;
+
+      projectConstellation.forEach((project, projectIndex) => {
+        const cluster = document.createElementNS(svgNS, "g");
+        cluster.setAttribute("class", "project-technology-cluster");
+        cluster.dataset.projectId = project.id;
+        cluster.dataset.project = String(projectIndex);
+
+        project.technologies.forEach((technology, technologyIndex) => {
+          const connection = document.createElementNS(svgNS, "path");
+          connection.setAttribute("class", "technology-connection");
+          connection.dataset.technology = String(technologyIndex);
+          cluster.appendChild(connection);
+
+          const node = document.createElementNS(svgNS, "circle");
+          node.setAttribute("class", "technology-node");
+          node.dataset.technology = String(technologyIndex);
+          cluster.appendChild(node);
+
+          const label = document.createElementNS(svgNS, "text");
+          label.setAttribute("class", "technology-label");
+          label.dataset.technology = String(technologyIndex);
+          label.textContent = technology;
+          cluster.appendChild(label);
+        });
+
+        projectTechnologiesGroup!.appendChild(cluster);
+      });
+
+      svgContainer!.insertBefore(projectTechnologiesGroup, originNodeGroup);
+    }
+
+    function updateProjectsGeometry(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (!projectsGroup || projectConstellation.length === 0) return;
+      const points = getProjectPoints(containerWidth, containerHeight);
+      const center = {
+        x: containerWidth * (isMobileDevice ? 0.78 : 0.74),
+        y: containerHeight * (isMobileDevice ? 0.42 : 0.48),
+      };
+
+      points.forEach((point, index) => {
+        const connection = projectsGroup!.querySelector<SVGPathElement>(
+          `.project-connection[data-project="${index}"]`
+        );
+        connection?.setAttribute(
+          "d",
+          `M ${center.x} ${center.y} L ${point.x} ${point.y}`
+        );
+
+        const halo = projectsGroup!.querySelector<SVGCircleElement>(
+          `.project-node-halo[data-project="${index}"]`
+        );
+        const ring = projectsGroup!.querySelector<SVGCircleElement>(
+          `.project-node-ring[data-project="${index}"]`
+        );
+        const node = projectsGroup!.querySelector<SVGCircleElement>(
+          `.project-node[data-project="${index}"]`
+        );
+        const title = projectsGroup!.querySelector<SVGTextElement>(
+          `.project-node-title[data-project="${index}"]`
+        );
+        halo?.setAttribute("cx", String(point.x));
+        halo?.setAttribute("cy", String(point.y));
+        halo?.setAttribute("r", isMobileDevice ? "28" : "38");
+        ring?.setAttribute("cx", String(point.x));
+        ring?.setAttribute("cy", String(point.y));
+        ring?.setAttribute("r", isMobileDevice ? "16" : "21");
+        node?.setAttribute("cx", String(point.x));
+        node?.setAttribute("cy", String(point.y));
+        node?.setAttribute("r", isMobileDevice ? "7" : "9");
+        const placeLabelOnLeft = point.x > containerWidth * 0.76;
+        title?.setAttribute(
+          "x",
+          String(point.x + (placeLabelOnLeft ? -1 : 1) * (isMobileDevice ? 23 : 30))
+        );
+        title?.setAttribute("y", String(point.y + 4));
+        title?.setAttribute(
+          "text-anchor",
+          placeLabelOnLeft ? "end" : "start"
+        );
+      });
+
+      updateProjectTechnologyGeometry(points, containerWidth);
+      updateProjectDetailState(points);
+    }
+
+    function updateProjectTechnologyGeometry(
+      projectPoints: Vector[],
+      containerWidth: number
+    ) {
+      if (!projectTechnologiesGroup) return;
+
+      projectConstellation.forEach((project, projectIndex) => {
+        const center = projectPoints[projectIndex];
+        const cluster =
+          projectTechnologiesGroup!.querySelector<SVGGElement>(
+            `.project-technology-cluster[data-project="${projectIndex}"]`
+          );
+        if (!cluster || !center) return;
+
+        const radius = Math.min(
+          isMobileDevice ? 92 : 145,
+          containerWidth * (isMobileDevice ? 0.22 : 0.12)
+        );
+        project.technologies.forEach((_, technologyIndex) => {
+          const count = Math.max(project.technologies.length, 1);
+          const angle =
+            -Math.PI / 2 + (technologyIndex / count) * Math.PI * 2;
+          const point = {
+            x: center.x + Math.cos(angle) * radius,
+            y: center.y + Math.sin(angle) * radius,
+          };
+          const connection = cluster.querySelector<SVGPathElement>(
+            `.technology-connection[data-technology="${technologyIndex}"]`
+          );
+          const node = cluster.querySelector<SVGCircleElement>(
+            `.technology-node[data-technology="${technologyIndex}"]`
+          );
+          const label = cluster.querySelector<SVGTextElement>(
+            `.technology-label[data-technology="${technologyIndex}"]`
+          );
+
+          connection?.setAttribute(
+            "d",
+            `M ${center.x} ${center.y} L ${point.x} ${point.y}`
+          );
+          node?.setAttribute("cx", String(point.x));
+          node?.setAttribute("cy", String(point.y));
+          node?.setAttribute("r", isMobileDevice ? "4" : "5");
+          const labelOnLeft = Math.cos(angle) < 0;
+          label?.setAttribute(
+            "x",
+            String(point.x + (labelOnLeft ? -1 : 1) * 11)
+          );
+          label?.setAttribute("y", String(point.y + 4));
+          label?.setAttribute(
+            "text-anchor",
+            labelOnLeft ? "end" : "start"
+          );
+        });
+      });
+    }
+
+    function updateProjectDetailState(projectPoints?: Vector[]) {
+      if (!projectsGroup || !projectTechnologiesGroup) return;
+      const activeIndex = projectConstellation.findIndex(
+        (project) => project.id === activeProjectId
+      );
+      const isDetail =
+        activeBackgroundScene === "project-detail" && activeIndex >= 0;
+      const points =
+        projectPoints || getProjectPoints(window.innerWidth, window.innerHeight);
+
+      projectsGroup.dataset.activeProject = isDetail
+        ? String(activeIndex)
+        : "";
+      projectTechnologiesGroup.dataset.activeProject = isDetail
+        ? activeProjectId
+        : "";
+
+      projectsGroup
+        .querySelectorAll<SVGElement>("[data-project]")
+        .forEach((element) => {
+          element.dataset.active =
+            isDetail &&
+            element.dataset.project === String(activeIndex)
+              ? "true"
+              : "false";
+        });
+
+      projectTechnologiesGroup
+        .querySelectorAll<SVGGElement>(".project-technology-cluster")
+        .forEach((cluster) => {
+          cluster.dataset.active =
+            isDetail && cluster.dataset.projectId === activeProjectId
+              ? "true"
+              : "false";
+        });
+
+      if (isDetail) {
+        const activePoint = points[activeIndex];
+        const targetPoint = {
+          x: window.innerWidth * (isMobileDevice ? 0.78 : 0.74),
+          y: window.innerHeight * (isMobileDevice ? 0.42 : 0.48),
+        };
+        const zoom = isMobileDevice ? 1.6 : 1.85;
+        const translateX = targetPoint.x - zoom * activePoint.x;
+        const translateY = targetPoint.y - zoom * activePoint.y;
+        projectsGroup.style.transformOrigin = "0 0";
+        projectsGroup.style.transform =
+          `matrix(${zoom}, 0, 0, ${zoom}, ${translateX}, ${translateY})`;
+        projectTechnologiesGroup.style.transform =
+          `translate(${targetPoint.x - activePoint.x}px, ${targetPoint.y - activePoint.y}px)`;
+      } else {
+        projectsGroup.style.transformOrigin = "74% 48%";
+        projectsGroup.style.transform = "matrix(1, 0, 0, 1, 0, 0)";
+        projectTechnologiesGroup.style.transform = "translate(0, 0)";
+      }
+    }
+
+    function getCurrentExperienceIndex() {
+      if (experienceChart.length === 0) return -1;
+      const currentIndex = experienceChart.findIndex(
+        (experience) => experience.current
+      );
+      return currentIndex >= 0 ? currentIndex : experienceChart.length - 1;
+    }
+
+    function getCombinedTimelinePoints(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      const entries = [
+        ...experienceChart.map((experience, index) => ({
+          type: "experience" as const,
+          index,
+          date: experience.startDate,
+        })),
+        ...educationTimeline.map((education, index) => ({
+          type: "education" as const,
+          index,
+          date: `${education.startYear}-09`,
+        })),
+      ].sort((a, b) => a.date.localeCompare(b.date));
+      const currentExperience = getCurrentExperienceIndex();
+      const currentIndex = Math.max(
+        0,
+        entries.findIndex(
+          (entry) => entry.type === "experience" && entry.index === currentExperience
+        )
+      );
+      const center = getSceneCenter(containerWidth, containerHeight);
+      const horizontalSpacing = Math.min(
+        containerWidth * (isMobileDevice ? 0.13 : 0.19),
+        isMobileDevice ? 70 : 300
+      );
+      const verticalSpacing = Math.min(
+        containerHeight * (isMobileDevice ? 0.075 : 0.14),
+        isMobileDevice ? 52 : 120
+      );
+
+      return entries.map((entry, index) => ({
+        ...entry,
+        point: {
+          x: center.x + (index - currentIndex) * horizontalSpacing,
+          y: center.y - (index - currentIndex) * verticalSpacing +
+            (index === currentIndex
+              ? 0
+              : Math.sin((index + 1) * 2.15) * containerHeight * 0.065) +
+            (entry.type === "education" &&
+            educationTimeline[entry.index]?.school.toLowerCase().includes("edhec")
+              ? containerHeight * (isMobileDevice ? 0.07 : 0.1)
+              : 0),
+        },
+      }));
+    }
+
+    function getTimelineEducationPoints(width: number, height: number): Vector[] {
+      const entries = getCombinedTimelinePoints(width, height);
+      return educationTimeline.map((_, educationIndex) =>
+        entries.find(
+          (entry) => entry.type === "education" && entry.index === educationIndex
+        )!.point
+      );
+    }
+
+    function getExperiencePoints(
+      containerWidth: number,
+      containerHeight: number
+    ): Vector[] {
+      if (activeBackgroundScene === "timeline") {
+        const entries = getCombinedTimelinePoints(containerWidth, containerHeight);
+        return experienceChart.map((_, experienceIndex) =>
+          entries.find(
+            (entry) => entry.type === "experience" && entry.index === experienceIndex
+          )!.point
+        );
+      }
+      const currentIndex = getCurrentExperienceIndex();
+      const center = {
+        x: containerWidth * (isMobileDevice ? 0.78 : 0.74),
+        y: containerHeight * (isMobileDevice ? 0.42 : 0.48),
+      };
+      const horizontalSpacing = Math.min(
+        containerWidth * (isMobileDevice ? 0.28 : 0.18),
+        isMobileDevice ? 135 : 300
+      );
+      const verticalSpacing = Math.min(
+        containerHeight * 0.15,
+        isMobileDevice ? 82 : 132
+      );
+
+      return experienceChart.map((_, index) => ({
+        x: center.x + (index - currentIndex) * horizontalSpacing,
+        y: center.y - (index - currentIndex) * verticalSpacing,
+      }));
+    }
+
+    function createExperienceScene(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (experienceChart.length === 0) return;
+
+      experienceGroup = document.createElementNS(svgNS, "g");
+      experienceGroup.setAttribute("class", "background-experience-scene");
+      experienceGroup.setAttribute("aria-hidden", "true");
+      experienceGroup.dataset.scene = activeBackgroundScene;
+
+      for (let index = 0; index < 3; index++) {
+        const guide = document.createElementNS(svgNS, "line");
+        guide.setAttribute("class", "experience-chart-guide");
+        guide.dataset.guide = String(index);
+        experienceGroup.appendChild(guide);
+      }
+
+      const chartArea = document.createElementNS(svgNS, "path");
+      chartArea.setAttribute("class", "experience-chart-area");
+      experienceGroup.appendChild(chartArea);
+
+      const underlay = document.createElementNS(svgNS, "path");
+      underlay.setAttribute(
+        "class",
+        "experience-chart-line experience-chart-line-underlay"
+      );
+      experienceGroup.appendChild(underlay);
+
+      const chartLine = document.createElementNS(svgNS, "path");
+      chartLine.setAttribute("class", "experience-chart-line");
+      experienceGroup.appendChild(chartLine);
+
+      const currentIndex = getCurrentExperienceIndex();
+      experienceChart.forEach((experience, index) => {
+        if (index !== currentIndex) {
+          const halo = document.createElementNS(svgNS, "circle");
+          halo.setAttribute("class", "experience-node-halo");
+          halo.dataset.experience = String(index);
+          experienceGroup!.appendChild(halo);
+
+          const node = document.createElementNS(svgNS, "circle");
+          node.setAttribute("class", "experience-node");
+          node.dataset.experience = String(index);
+          experienceGroup!.appendChild(node);
+        }
+
+        const company = document.createElementNS(svgNS, "text");
+        company.setAttribute("class", "experience-company");
+        company.dataset.experience = String(index);
+        company.textContent = experience.company;
+        experienceGroup!.appendChild(company);
+
+        const year = document.createElementNS(svgNS, "text");
+        year.setAttribute("class", "experience-year");
+        year.dataset.experience = String(index);
+        year.textContent = experience.startDate.slice(0, 4);
+        experienceGroup!.appendChild(year);
+
+        const role = document.createElementNS(svgNS, "text");
+        role.setAttribute("class", "experience-role");
+        role.dataset.experience = String(index);
+        role.dataset.i18nFr = experience.role.fr;
+        role.dataset.i18nEn = experience.role.en;
+        role.textContent = experience.role.fr;
+        experienceGroup!.appendChild(role);
+
+        const tags = document.createElementNS(svgNS, "text");
+        tags.setAttribute("class", "experience-tags");
+        tags.dataset.experience = String(index);
+        tags.textContent = experience.tags.slice(0, 3).join(" · ");
+        experienceGroup!.appendChild(tags);
+      });
+
+      educationTimeline.forEach((education, index) => {
+        const school = document.createElementNS(svgNS, "text");
+        school.setAttribute("class", "timeline-education-school");
+        school.dataset.education = String(index);
+        school.textContent = education.school;
+        experienceGroup!.appendChild(school);
+
+        const footnote = document.createElementNS(svgNS, "text");
+        footnote.setAttribute("class", "timeline-education-footnote");
+        footnote.dataset.education = String(index);
+        footnote.dataset.i18nFr = `Formation · sept. ${education.startYear}`;
+        footnote.dataset.i18nEn = `Education · Sep ${education.startYear}`;
+        footnote.textContent = `Formation · sept. ${education.startYear}`;
+        experienceGroup!.appendChild(footnote);
+      });
+
+      svgContainer!.insertBefore(experienceGroup, originNodeGroup);
+      updateExperienceGeometry(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene);
+    }
+
+    function updateExperienceGeometry(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (!experienceGroup || experienceChart.length === 0) return;
+      const points = getExperiencePoints(containerWidth, containerHeight);
+      const routePoints = activeBackgroundScene === "timeline"
+        ? getCombinedTimelinePoints(containerWidth, containerHeight).map((entry) => entry.point)
+        : points;
+      const firstPoint = routePoints[0];
+      const lastPoint = routePoints[routePoints.length - 1];
+      const start = {
+        x: -80,
+        y: Math.min(containerHeight + 70, firstPoint.y + containerHeight * 0.18),
+      };
+      const end = {
+        x: containerWidth + 90,
+        y: Math.max(-50, lastPoint.y - containerHeight * 0.2),
+      };
+      const path = [
+        `M ${start.x} ${start.y}`,
+        ...routePoints.map((point) => `L ${point.x} ${point.y}`),
+        `L ${end.x} ${end.y}`,
+      ].join(" ");
+
+      experienceGroup
+        .querySelectorAll<SVGPathElement>(".experience-chart-line")
+        .forEach((line) => line.setAttribute("d", path));
+      experienceGroup
+        .querySelector<SVGPathElement>(".experience-chart-area")
+        ?.setAttribute(
+          "d",
+          `${path} L ${end.x} ${containerHeight + 40} L ${start.x} ${containerHeight + 40} Z`
+        );
+
+      experienceGroup
+        .querySelectorAll<SVGLineElement>(".experience-chart-guide")
+        .forEach((guide, index) => {
+          const y = containerHeight * (0.28 + index * 0.2);
+          guide.setAttribute("x1", "-40");
+          guide.setAttribute("x2", String(containerWidth + 40));
+          guide.setAttribute("y1", String(y));
+          guide.setAttribute("y2", String(y));
+        });
+
+      const currentIndex = getCurrentExperienceIndex();
+      const combinedTimeline = activeBackgroundScene === "timeline"
+        ? getCombinedTimelinePoints(containerWidth, containerHeight)
+        : [];
+      experienceChart.forEach((_, index) => {
+        const point = points[index];
+        if (index !== currentIndex) {
+          const node = experienceGroup!.querySelector<SVGCircleElement>(
+            `.experience-node[data-experience="${index}"]`
+          );
+          const halo = experienceGroup!.querySelector<SVGCircleElement>(
+            `.experience-node-halo[data-experience="${index}"]`
+          );
+          node?.setAttribute("cx", String(point.x));
+          node?.setAttribute("cy", String(point.y));
+          node?.setAttribute("r", isMobileDevice ? "7" : "9");
+          halo?.setAttribute("cx", String(point.x));
+          halo?.setAttribute("cy", String(point.y));
+          halo?.setAttribute("r", isMobileDevice ? "20" : "27");
+        }
+
+        const timelineOrder = combinedTimeline.findIndex(
+          (entry) => entry.type === "experience" && entry.index === index
+        );
+        const labelOnLeft = timelineOrder >= 0
+          ? timelineOrder % 2 === 0
+          : point.x > containerWidth * (isMobileDevice ? 0.65 : 0.82);
+        const company = experienceGroup!.querySelector<SVGTextElement>(
+          `.experience-company[data-experience="${index}"]`
+        );
+        const year = experienceGroup!.querySelector<SVGTextElement>(
+          `.experience-year[data-experience="${index}"]`
+        );
+        const role = experienceGroup!.querySelector<SVGTextElement>(
+          `.experience-role[data-experience="${index}"]`
+        );
+        const tags = experienceGroup!.querySelector<SVGTextElement>(
+          `.experience-tags[data-experience="${index}"]`
+        );
+        const companyY = timelineOrder >= 0
+          ? point.y + (timelineOrder % 2 === 0 ? -38 : 28)
+          : point.y - 5;
+        company?.setAttribute(
+          "x",
+          String(point.x + (labelOnLeft ? -1 : 1) * (isMobileDevice ? 18 : 25))
+        );
+        company?.setAttribute("y", String(companyY));
+        company?.setAttribute(
+          "text-anchor",
+          labelOnLeft ? "end" : "start"
+        );
+        year?.setAttribute(
+          "x",
+          String(point.x + (labelOnLeft ? -1 : 1) * (isMobileDevice ? 18 : 25))
+        );
+        year?.setAttribute("y", String(companyY + 18));
+        year?.setAttribute("text-anchor", labelOnLeft ? "end" : "start");
+        role?.setAttribute(
+          "x",
+          String(point.x + (labelOnLeft ? -1 : 1) * (isMobileDevice ? 18 : 25))
+        );
+        role?.setAttribute("y", String(companyY + 35));
+        role?.setAttribute("text-anchor", labelOnLeft ? "end" : "start");
+        tags?.setAttribute(
+          "x",
+          String(point.x + (labelOnLeft ? -1 : 1) * (isMobileDevice ? 18 : 25))
+        );
+        tags?.setAttribute("y", String(companyY + 50));
+        tags?.setAttribute("text-anchor", labelOnLeft ? "end" : "start");
+      });
+
+      const educationPoints = getTimelineEducationPoints(containerWidth, containerHeight);
+      educationTimeline.forEach((_, index) => {
+        const point = educationPoints[index];
+        const labelOnLeft = point.x > containerWidth * (isMobileDevice ? 0.65 : 0.8);
+        const direction = labelOnLeft ? -1 : 1;
+        const offset = isMobileDevice ? 18 : 25;
+        const school = experienceGroup!.querySelector<SVGTextElement>(
+          `.timeline-education-school[data-education="${index}"]`
+        );
+        const footnote = experienceGroup!.querySelector<SVGTextElement>(
+          `.timeline-education-footnote[data-education="${index}"]`
+        );
+        const timelineOrder = combinedTimeline.findIndex(
+          (entry) => entry.type === "education" && entry.index === index
+        );
+        const schoolY = timelineOrder % 2 === 0
+          ? point.y - (isMobileDevice ? 24 : 30)
+          : point.y + (isMobileDevice ? 28 : 34);
+
+        school?.setAttribute("x", String(point.x + direction * offset));
+        school?.setAttribute("y", String(schoolY));
+        school?.setAttribute("text-anchor", labelOnLeft ? "end" : "start");
+        footnote?.setAttribute("x", String(point.x + direction * offset));
+        footnote?.setAttribute("y", String(schoolY + (isMobileDevice ? 15 : 16)));
+        footnote?.setAttribute("text-anchor", labelOnLeft ? "end" : "start");
+      });
+    }
+
+    function getBeyondPoints(
+      containerWidth: number,
+      containerHeight: number
+    ): Vector[] {
+      const positions = [
+        { x: 0.06, y: 0.74 },
+        { x: 0.2, y: 0.58 },
+        { x: 0.36, y: 0.69 },
+        { x: 0.51, y: 0.5 },
+        { x: 0.63, y: 0.3 },
+        { x: 0.83, y: 0.66 },
+        { x: 0.94, y: 0.46 },
+        { x: 1.08, y: 0.28 },
+      ];
+
+      return beyondJourney.map((_, index) => {
+        const position = positions[index] || {
+          x: 1.08 + (index - positions.length + 1) * 0.14,
+          y: 0.28 + Math.sin(index * 1.4) * 0.16,
+        };
+        return {
+          x: containerWidth * position.x,
+          y: containerHeight * position.y,
+        };
+      });
+    }
+
+    function createOpenCurvePath(points: Vector[]) {
+      if (points.length < 2) return "";
+      let path = `M ${points[0].x} ${points[0].y}`;
+
+      for (let index = 0; index < points.length - 1; index++) {
+        const previous = points[Math.max(0, index - 1)];
+        const current = points[index];
+        const next = points[index + 1];
+        const following = points[Math.min(points.length - 1, index + 2)];
+        const control1 = {
+          x: current.x + (next.x - previous.x) / 6,
+          y: current.y + (next.y - previous.y) / 6,
+        };
+        const control2 = {
+          x: next.x - (following.x - current.x) / 6,
+          y: next.y - (following.y - current.y) / 6,
+        };
+        path +=
+          ` C ${control1.x} ${control1.y}, ${control2.x} ${control2.y}, ${next.x} ${next.y}`;
+      }
+      return path;
+    }
+
+    function createBeyondScene(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (beyondJourney.length === 0) return;
+
+      const defs = svgContainer!.querySelector("defs");
+      if (defs && !defs.querySelector("#beyond-track-fade")) {
+        const gradient = document.createElementNS(svgNS, "linearGradient");
+        gradient.setAttribute("id", "beyond-track-fade");
+        gradient.setAttribute("x1", "0%");
+        gradient.setAttribute("x2", "100%");
+        gradient.setAttribute("y1", "0%");
+        gradient.setAttribute("y2", "0%");
+        [
+          ["0%", "1"],
+          ["68%", "1"],
+          ["88%", "0.45"],
+          ["100%", "0"],
+        ].forEach(([offset, opacity]) => {
+          const stop = document.createElementNS(svgNS, "stop");
+          stop.setAttribute("offset", offset);
+          stop.setAttribute("stop-color", "#ffd0a8");
+          stop.setAttribute("stop-opacity", opacity);
+          gradient.appendChild(stop);
+        });
+        defs.appendChild(gradient);
+      }
+
+      beyondGroup = document.createElementNS(svgNS, "g");
+      beyondGroup.setAttribute("class", "background-beyond-scene");
+      beyondGroup.setAttribute("aria-hidden", "true");
+      beyondGroup.dataset.scene = activeBackgroundScene;
+
+      const trackUnderlay = document.createElementNS(svgNS, "path");
+      trackUnderlay.setAttribute(
+        "class",
+        "beyond-track beyond-track-underlay"
+      );
+      beyondGroup.appendChild(trackUnderlay);
+
+      const track = document.createElementNS(svgNS, "path");
+      track.setAttribute("class", "beyond-track");
+      beyondGroup.appendChild(track);
+
+      beyondJourney.forEach((step, index) => {
+        const halo = document.createElementNS(svgNS, "circle");
+        halo.setAttribute("class", "beyond-node-halo");
+        halo.dataset.step = String(index);
+        beyondGroup!.appendChild(halo);
+
+        const node = document.createElementNS(svgNS, "circle");
+        node.setAttribute(
+          "class",
+          index === 0 ? "beyond-node beyond-node-start" : "beyond-node"
+        );
+        node.dataset.step = String(index);
+        beyondGroup!.appendChild(node);
+
+        const label = document.createElementNS(svgNS, "text");
+        label.setAttribute("class", "beyond-label");
+        label.dataset.step = String(index);
+        label.dataset.i18nFr = step.title.fr;
+        label.dataset.i18nEn = step.title.en;
+        label.textContent = step.title.fr;
+        beyondGroup!.appendChild(label);
+      });
+
+      svgContainer!.insertBefore(beyondGroup, originNodeGroup);
+      updateBeyondGeometry(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene);
+    }
+
+    function updateBeyondGeometry(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (!beyondGroup || beyondJourney.length === 0) return;
+      const stepPoints = getBeyondPoints(containerWidth, containerHeight);
+      const center = {
+        x: containerWidth * (isMobileDevice ? 0.78 : 0.74),
+        y: containerHeight * (isMobileDevice ? 0.42 : 0.48),
+      };
+      const insertionIndex = Math.min(5, stepPoints.length);
+      const end = {
+        x: Math.max(containerWidth * 1.28, stepPoints.at(-1)!.x + 180),
+        y: Math.max(-80, stepPoints.at(-1)!.y - containerHeight * 0.18),
+      };
+      const trackPoints = [
+        ...stepPoints.slice(0, insertionIndex),
+        center,
+        ...stepPoints.slice(insertionIndex),
+        end,
+      ];
+      const path = createOpenCurvePath(trackPoints);
+      beyondGroup
+        .querySelectorAll<SVGPathElement>(".beyond-track")
+        .forEach((track) => track.setAttribute("d", path));
+
+      stepPoints.forEach((point, index) => {
+        const halo = beyondGroup!.querySelector<SVGCircleElement>(
+          `.beyond-node-halo[data-step="${index}"]`
+        );
+        const node = beyondGroup!.querySelector<SVGCircleElement>(
+          `.beyond-node[data-step="${index}"]`
+        );
+        const label = beyondGroup!.querySelector<SVGTextElement>(
+          `.beyond-label[data-step="${index}"]`
+        );
+        const isStart = index === 0;
+        halo?.setAttribute("cx", String(point.x));
+        halo?.setAttribute("cy", String(point.y));
+        halo?.setAttribute("r", isStart ? "31" : "21");
+        node?.setAttribute("cx", String(point.x));
+        node?.setAttribute("cy", String(point.y));
+        node?.setAttribute("r", isStart ? "10" : "7");
+        const labelBelow = index % 2 === 0;
+        label?.setAttribute("x", String(point.x));
+        label?.setAttribute(
+          "y",
+          String(point.y + (labelBelow ? 1 : -1) * (isMobileDevice ? 25 : 31))
+        );
+        label?.setAttribute(
+          "dominant-baseline",
+          labelBelow ? "hanging" : "auto"
+        );
+      });
+    }
+
+    const contactChannels = ["mail", "phone", "linkedin"];
+
+    function createContactIcon(channel: string, endpoint: string) {
+      const icon = document.createElementNS(svgNS, "g");
+      icon.setAttribute("class", `contact-channel-icon contact-channel-${channel}`);
+      icon.dataset.channel = channel;
+      icon.dataset.endpoint = endpoint;
+
+      if (channel === "mail") {
+        const envelope = document.createElementNS(svgNS, "rect");
+        envelope.setAttribute("x", "-11");
+        envelope.setAttribute("y", "-8");
+        envelope.setAttribute("width", "22");
+        envelope.setAttribute("height", "16");
+        envelope.setAttribute("rx", "2");
+        icon.appendChild(envelope);
+        const flap = document.createElementNS(svgNS, "path");
+        flap.setAttribute("d", "M -10 -6 L 0 2 L 10 -6");
+        icon.appendChild(flap);
+      } else if (channel === "phone") {
+        const phone = document.createElementNS(svgNS, "path");
+        phone.setAttribute("d", "M -7 -11 C -3 -12 -1 -6 -3 -4 L -5 -2 C -3 3 0 6 5 8 L 7 6 C 9 4 14 8 12 11 C 10 14 6 14 2 12 C -5 9 -10 4 -12 -3 C -13 -7 -11 -10 -7 -11 Z");
+        icon.appendChild(phone);
+      } else {
+        const linkedIn = document.createElementNS(svgNS, "text");
+        linkedIn.setAttribute("x", "0");
+        linkedIn.setAttribute("y", "7");
+        linkedIn.setAttribute("text-anchor", "middle");
+        linkedIn.textContent = "in";
+        icon.appendChild(linkedIn);
+      }
+      return icon;
+    }
+
+    function createContactScene(containerWidth: number, containerHeight: number) {
+      contactGroup = document.createElementNS(svgNS, "g");
+      contactGroup.setAttribute("class", "background-contact-scene");
+      contactGroup.setAttribute("aria-hidden", "true");
+      contactGroup.dataset.scene = activeBackgroundScene;
+      contactGroup.dataset.leftChannel = "mail";
+      contactGroup.dataset.rightChannel = "phone";
+
+      for (let index = 0; index < 2; index++) {
+        const flow = document.createElementNS(svgNS, "path");
+        flow.setAttribute("class", `contact-flow contact-flow-${index + 1}`);
+        contactGroup.appendChild(flow);
+      }
+
+      for (let index = 0; index < 2; index++) {
+        const messageNode = document.createElementNS(svgNS, "circle");
+        messageNode.setAttribute(
+          "class",
+          `contact-message-node contact-message-node-${index + 1}`
+        );
+        messageNode.setAttribute("r", isMobileDevice ? "4" : "5");
+        const messageMotion = document.createElementNS(svgNS, "animateMotion");
+        messageMotion.setAttribute("class", "contact-message-motion");
+        messageMotion.dataset.message = String(index);
+        messageMotion.setAttribute("dur", index === 0 ? "3.2s" : "4.1s");
+        messageMotion.setAttribute("begin", index === 0 ? "0s" : "-1.6s");
+        messageMotion.setAttribute("repeatCount", "indefinite");
+        messageMotion.setAttribute("calcMode", "spline");
+        messageMotion.setAttribute("keyTimes", "0;1");
+        messageMotion.setAttribute("keySplines", "0.45 0 0.55 1");
+        messageNode.appendChild(messageMotion);
+        contactGroup.appendChild(messageNode);
+      }
+
+      ["left", "right"].forEach((endpoint) => {
+        const halo = document.createElementNS(svgNS, "circle");
+        halo.setAttribute("class", `contact-node-halo contact-node-${endpoint}`);
+        contactGroup!.appendChild(halo);
+        if (endpoint === "left") {
+          const node = document.createElementNS(svgNS, "circle");
+          node.setAttribute("class", "contact-node contact-node-left");
+          contactGroup!.appendChild(node);
+        }
+        contactChannels.forEach((channel) => {
+          contactGroup!.appendChild(createContactIcon(channel, endpoint));
+        });
+      });
+
+      svgContainer!.insertBefore(contactGroup, originNodeGroup);
+      updateContactGeometry(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene);
+    }
+
+    function getContactPoints(containerWidth: number, containerHeight: number) {
+      return {
+        left: {
+          x: containerWidth * (isMobileDevice ? 0.23 : 0.42),
+          y: containerHeight * (isMobileDevice ? 0.62 : 0.55),
+        },
+        right: {
+          x: containerWidth * (isMobileDevice ? 0.78 : 0.74),
+          y: containerHeight * (isMobileDevice ? 0.42 : 0.48),
+        },
+      };
+    }
+
+    function updateContactGeometry(containerWidth: number, containerHeight: number) {
+      if (!contactGroup) return;
+      const { left, right } = getContactPoints(containerWidth, containerHeight);
+      const bend = Math.max(50, containerHeight * 0.12);
+      const paths = [
+        `M ${left.x} ${left.y} C ${left.x + (right.x - left.x) * 0.35} ${left.y - bend}, ${left.x + (right.x - left.x) * 0.66} ${right.y - bend}, ${right.x} ${right.y}`,
+        `M ${right.x} ${right.y} C ${left.x + (right.x - left.x) * 0.66} ${right.y + bend}, ${left.x + (right.x - left.x) * 0.35} ${left.y + bend}, ${left.x} ${left.y}`,
+      ];
+      contactGroup.querySelectorAll<SVGPathElement>(".contact-flow").forEach((path, index) => path.setAttribute("d", paths[index]));
+      const displayedPaths = getMorphScenePaths(
+        "contact",
+        containerWidth,
+        containerHeight
+      );
+      contactGroup
+        .querySelectorAll<SVGAnimateMotionElement>(".contact-message-motion")
+        .forEach((motion, index) => {
+          const state = displayedPaths[index];
+          motion.setAttribute(
+            "path",
+            `M ${state.from.x} ${state.from.y} Q ${state.control.x} ${state.control.y} ${state.to.x} ${state.to.y}`
+          );
+          motion.beginElement();
+        });
+
+      contactGroup.querySelectorAll<SVGCircleElement>(".contact-node-left").forEach((node) => {
+        node.setAttribute("cx", String(left.x));
+        node.setAttribute("cy", String(left.y));
+        node.setAttribute("r", node.classList.contains("contact-node-halo") ? "34" : "9");
+      });
+      const rightHalo = contactGroup.querySelector<SVGCircleElement>(".contact-node-right");
+      rightHalo?.setAttribute("cx", String(right.x));
+      rightHalo?.setAttribute("cy", String(right.y));
+      rightHalo?.setAttribute("r", "36");
+
+      contactGroup.querySelectorAll<SVGGElement>(".contact-channel-icon").forEach((icon) => {
+        const point = icon.dataset.endpoint === "left" ? left : right;
+        icon.setAttribute("transform", `translate(${point.x} ${point.y - (isMobileDevice ? 58 : 72)})`);
+      });
+    }
+
+    function updateContactChannels() {
+      if (!contactGroup || activeBackgroundScene !== "contact") return;
+      contactChannelStep = (contactChannelStep + 1) % contactChannels.length;
+      contactGroup.dataset.leftChannel = contactChannels[contactChannelStep];
+      contactGroup.dataset.rightChannel = contactChannels[(contactChannelStep + 1) % contactChannels.length];
+    }
+
+    function startContactChannelChanges() {
+      if (contactChannelTimer !== null || !contactGroup) return;
+      contactChannelTimer = window.setInterval(updateContactChannels, 1800);
+    }
+
+    function stopContactChannelChanges() {
+      if (contactChannelTimer !== null) {
+        window.clearInterval(contactChannelTimer);
+        contactChannelTimer = null;
+      }
+    }
+
+    interface MorphPathState {
+      from: Vector;
+      control: Vector;
+      to: Vector;
+      color: string;
+      opacity: number;
+      fromNode?: number | "center";
+      toNode?: number | "center";
+    }
+
+    function getSceneCenter(width: number, height: number): Vector {
+      return {
+        x: width * (isMobileDevice ? 0.78 : 0.74),
+        y: height * (isMobileDevice ? 0.42 : 0.48),
+      };
+    }
+
+    function pathState(
+      from: Vector,
+      to: Vector,
+      color: string,
+      opacity = 0.75,
+      bend = 0,
+      fromNode?: number | "center",
+      toNode?: number | "center"
+    ): MorphPathState {
+      return {
+        from,
+        to,
+        control: {
+          x: (from.x + to.x) / 2,
+          y: (from.y + to.y) / 2 + bend,
+        },
+        color,
+        opacity,
+        fromNode,
+        toNode,
+      };
+    }
+
+    function getMorphScenePaths(scene: string, width: number, height: number): MorphPathState[] {
+      const center = getSceneCenter(width, height);
+      if (scene === "timeline") {
+        const entries = getCombinedTimelinePoints(width, height);
+        const current = getCurrentExperienceIndex();
+        const nodeReference = (entry: typeof entries[number]): number | "center" => {
+          if (entry.type === "experience" && entry.index === current) return "center";
+          if (entry.type === "experience") {
+            return entry.index < current ? entry.index : entry.index - 1;
+          }
+          return Math.max(0, experienceChart.length - 1) + entry.index;
+        };
+        return entries.slice(0, -1).map((entry, index) =>
+          pathState(
+            entry.point,
+            entries[index + 1].point,
+            "#fff0a8",
+            0.94,
+            0,
+            nodeReference(entry),
+            nodeReference(entries[index + 1])
+          )
+        );
+      }
+      if (scene === "origin") {
+        return [
+          pathState(center, { x: width + 80, y: height * 0.12 }, "#ffffff", 0.86, -height * 0.08),
+          pathState(center, { x: width + 60, y: height + 40 }, "#ffffff", 0.7, height * 0.08),
+          pathState(center, { x: center.x - width * 0.18, y: height + 60 }, "#ffffff", 0.56, height * 0.08),
+        ];
+      }
+      if (scene === "network") {
+        const points = getNetworkPoints(width, height);
+        return networkEdges.map(([fromIndex, toIndex], index) => {
+          const connection = networkConnections[index];
+          const cut = connection?.dataset.state === "cut";
+          return pathState(
+            points[fromIndex],
+            points[toIndex],
+            cut ? "#ff796e" : "#8cf2c4",
+            cut ? 0.58 : 0.72,
+            (index % 3 - 1) * Math.min(width, height) * 0.035,
+            fromIndex === networkCenterIndex ? "center" : fromIndex,
+            toIndex === networkCenterIndex ? "center" : toIndex
+          );
+        });
+      }
+      if (scene === "education") {
+        const points = getEducationPoints(width, height);
+        const current = getCurrentEducationIndex();
+        const nodeRef = (index: number): number | "center" =>
+          index === current ? "center" : index < current ? index : index - 1;
+        return points.slice(0, -1).map((point, index) =>
+          pathState(point, points[index + 1], "#ffffff", 0.7, 0, nodeRef(index), nodeRef(index + 1))
+        );
+      }
+      if (scene === "projects") {
+        return getProjectPoints(width, height).map((point, index) =>
+          pathState(center, point, "#a9def7", 0.72, 0, "center", index)
+        );
+      }
+      if (scene === "experience") {
+        const points = getExperiencePoints(width, height);
+        const extended = [
+          { x: -80, y: Math.min(height + 70, points[0]?.y + height * 0.18) },
+          ...points,
+          { x: width + 90, y: Math.max(-50, points.at(-1)?.y - height * 0.2) },
+        ];
+        const current = getCurrentExperienceIndex();
+        const experienceRef = (index: number): number | "center" | undefined => {
+          const experienceIndex = index - 1;
+          if (experienceIndex < 0 || experienceIndex >= points.length) return undefined;
+          return experienceIndex === current
+            ? "center"
+            : experienceIndex < current ? experienceIndex : experienceIndex - 1;
+        };
+        return extended.slice(0, -1).map((point, index) =>
+          pathState(point, extended[index + 1], "#fff0a8", 0.94, 0, experienceRef(index), experienceRef(index + 1))
+        );
+      }
+      if (scene === "beyond") {
+        const points = getBeyondPoints(width, height);
+        const insertionIndex = Math.min(5, points.length);
+        const route = [...points.slice(0, insertionIndex), center, ...points.slice(insertionIndex)];
+        route.push({
+          x: Math.max(width * 1.28, (points.at(-1)?.x || width) + 180),
+          y: Math.max(-80, (points.at(-1)?.y || height * 0.4) - height * 0.18),
+        });
+        const beyondRef = (index: number): number | "center" | undefined => {
+          if (index === insertionIndex) return "center";
+          if (index === route.length - 1) return undefined;
+          return index < insertionIndex ? index : index - 1;
+        };
+        return route.slice(0, -1).map((point, index) =>
+          pathState(point, route[index + 1], "#ffd0a8", Math.max(0.2, 0.9 - index * 0.07), 0, beyondRef(index), beyondRef(index + 1))
+        );
+      }
+      if (scene === "contact") {
+        const points = getContactPoints(width, height);
+        return [
+          pathState(points.left, points.right, "#e5c8f0", 0.86, -Math.max(50, height * 0.12), 0, "center"),
+          pathState(points.right, points.left, "#ffffff", 0.46, Math.max(50, height * 0.12), "center", 0),
+        ];
+      }
+      return [];
+    }
+
+    function setMorphPath(path: SVGPathElement, state: MorphPathState, opacity = state.opacity) {
+      path.setAttribute("d", `M ${state.from.x} ${state.from.y} Q ${state.control.x} ${state.control.y} ${state.to.x} ${state.to.y}`);
+      path.style.setProperty("--morph-path-color", state.color);
+      path.style.setProperty("--morph-path-opacity", String(opacity));
+    }
+
+    function createMorphPathsScene(width: number, height: number) {
+      morphPathsGroup = document.createElementNS(svgNS, "g");
+      morphPathsGroup.setAttribute("class", "background-morph-paths");
+      morphPathsGroup.setAttribute("aria-hidden", "true");
+      for (let index = 0; index < networkEdges.length; index++) {
+        const path = document.createElementNS(svgNS, "path");
+        path.setAttribute("class", "morph-path");
+        path.dataset.path = String(index);
+        morphPathsGroup.appendChild(path);
+      }
+      svgContainer!.insertBefore(morphPathsGroup, originNodeGroup);
+      updateMorphPaths(activeBackgroundScene, width, height, true);
+    }
+
+    function updateMorphPaths(scene = activeBackgroundScene, width = window.innerWidth, height = window.innerHeight, immediate = false) {
+      if (!morphPathsGroup) return;
+      const states = getMorphScenePaths(scene, width, height);
+      morphPathsGroup.dataset.scene = scene;
+      morphPathsGroup.querySelectorAll<SVGPathElement>(".morph-path").forEach((path, index) => {
+        if (immediate) path.style.transition = "none";
+        const state = states[index];
+        if (state) setMorphPath(path, state);
+        else path.style.setProperty("--morph-path-opacity", "0");
+        if (immediate) requestAnimationFrame(() => path.style.removeProperty("transition"));
+      });
+    }
+
+    function updateMorphPathsProgress(fromScene: string, toScene: string, progress: number) {
+      if (!morphPathsGroup || fromScene === "project-detail" || toScene === "project-detail") return;
+      const fromPaths = getMorphScenePaths(fromScene, window.innerWidth, window.innerHeight);
+      const toPaths = getMorphScenePaths(toScene, window.innerWidth, window.innerHeight);
+      const fromNodes = getMorphSceneNodes(fromScene, window.innerWidth, window.innerHeight);
+      const toNodes = getMorphSceneNodes(toScene, window.innerWidth, window.innerHeight);
+      const center = getSceneCenter(window.innerWidth, window.innerHeight);
+      const resolveNode = (reference: number | "center" | undefined) => {
+        if (reference === "center") return center;
+        if (reference === undefined) return null;
+        const start = fromNodes[reference] || toNodes[reference];
+        const end = toNodes[reference] || fromNodes[reference];
+        if (!start || !end) return null;
+        return {
+          x: start.point.x + (end.point.x - start.point.x) * progress,
+          y: start.point.y + (end.point.y - start.point.y) * progress,
+        };
+      };
+      morphPathsGroup.dataset.interpolating = fromScene === toScene ? "false" : "true";
+      morphPathsGroup.querySelectorAll<SVGPathElement>(".morph-path").forEach((path, index) => {
+        const from = fromPaths[index];
+        const to = toPaths[index];
+        if (!from && !to) {
+          path.style.setProperty("--morph-path-opacity", "0");
+          return;
+        }
+        const start = from || to;
+        const end = to || from;
+        const mix = (a: number, b: number) => a + (b - a) * progress;
+        const referencesChanged = Boolean(
+          from && to &&
+          (from.fromNode !== to.fromNode || from.toNode !== to.toNode)
+        );
+        const referenceState = referencesChanged && progress >= 0.5 ? end! : start!;
+        const attachedFrom = resolveNode(referenceState.fromNode);
+        const attachedTo = resolveNode(referenceState.toNode);
+        const startBend = start!.control.y - (start!.from.y + start!.to.y) / 2;
+        const endBend = end!.control.y - (end!.from.y + end!.to.y) / 2;
+        const bend = mix(startBend, endBend);
+        const mixedFrom = attachedFrom || {
+          x: mix(start!.from.x, end!.from.x),
+          y: mix(start!.from.y, end!.from.y),
+        };
+        const mixedTo = attachedTo || {
+          x: mix(start!.to.x, end!.to.x),
+          y: mix(start!.to.y, end!.to.y),
+        };
+        const state: MorphPathState = {
+          from: mixedFrom,
+          control: {
+            x: (mixedFrom.x + mixedTo.x) / 2,
+            y: (mixedFrom.y + mixedTo.y) / 2 + bend,
+          },
+          to: mixedTo,
+          color: interpolateHexColor(start!.color, end!.color, progress),
+          opacity: from && to
+            ? mix(from.opacity, to.opacity)
+            : from ? from.opacity * (1 - progress) : to!.opacity * progress,
+        };
+        if (referencesChanged) {
+          state.opacity *= Math.abs(progress * 2 - 1);
+        }
+        setMorphPath(path, state);
+      });
+    }
+
+    const morphNodeCount = Math.max(
+      networkSatelliteCount,
+      educationTimeline.length - 1,
+      projectConstellation.length,
+      experienceChart.length - 1,
+      experienceChart.length - 1 + educationTimeline.length,
+      beyondJourney.length,
+      1
+    );
+
+    function getMorphSceneNodes(
+      scene: string,
+      containerWidth: number,
+      containerHeight: number
+    ): Array<{ point: Vector; color: string; radius: number }> {
+      if (scene === "network") {
+        return getNetworkPoints(containerWidth, containerHeight)
+          .slice(0, networkSatelliteCount)
+          .map((point, index) => {
+            const tone = networkGroup?.querySelector<SVGCircleElement>(
+              `.network-node[data-node="${index}"]`
+            )?.dataset.tone;
+            const colors: Record<string, string> = {
+              green: "#b8f5d8",
+              amber: "#ffd778",
+              red: "#ff8a7f",
+              white: "#ffffff",
+            };
+            return { point, color: colors[tone || "white"], radius: index % 4 === 0 ? 7 : 5 };
+          });
+      }
+      if (scene === "education") {
+        const current = getCurrentEducationIndex();
+        return getEducationPoints(containerWidth, containerHeight)
+          .filter((_, index) => index !== current)
+          .map((point) => ({ point, color: "#ffffff", radius: isMobileDevice ? 7 : 9 }));
+      }
+      if (scene === "projects") {
+        return getProjectPoints(containerWidth, containerHeight).map((point, index) => ({
+          point,
+          color: ["#8de4ee", "#8ebcf4", "#ffffff"][index % 3],
+          radius: isMobileDevice ? 7 : 9,
+        }));
+      }
+      if (scene === "experience") {
+        const current = getCurrentExperienceIndex();
+        return getExperiencePoints(containerWidth, containerHeight)
+          .filter((_, index) => index !== current)
+          .map((point) => ({ point, color: "#ffd35a", radius: isMobileDevice ? 7 : 9 }));
+      }
+      if (scene === "beyond") {
+        return getBeyondPoints(containerWidth, containerHeight).map((point, index) => ({
+          point,
+          color: index === 0 ? "#f1a36d" : "#ffd0a8",
+          radius: index === 0 ? 10 : 7,
+        }));
+      }
+      if (scene === "contact") {
+        return [{ point: getContactPoints(containerWidth, containerHeight).left, color: "#ffffff", radius: 9 }];
+      }
+      if (scene === "timeline") {
+        const current = getCurrentExperienceIndex();
+        const experienceNodes = getExperiencePoints(containerWidth, containerHeight)
+          .filter((_, index) => index !== current)
+          .map((point) => ({ point, color: "#ffd35a", radius: isMobileDevice ? 7 : 9 }));
+        const educationNodes = getTimelineEducationPoints(containerWidth, containerHeight).map((point) => ({
+          point,
+          color: "#8de4ee",
+          radius: isMobileDevice ? 7 : 9,
+        }));
+        return [...experienceNodes, ...educationNodes];
+      }
+      return [];
+    }
+
+    function createMorphNodesScene(containerWidth: number, containerHeight: number) {
+      morphNodesGroup = document.createElementNS(svgNS, "g");
+      morphNodesGroup.setAttribute("class", "background-morph-nodes");
+      morphNodesGroup.setAttribute("aria-hidden", "true");
+
+      for (let index = 0; index < morphNodeCount; index++) {
+        const wrapper = document.createElementNS(svgNS, "g");
+        wrapper.setAttribute("class", "morph-node");
+        wrapper.dataset.node = String(index);
+        const halo = document.createElementNS(svgNS, "circle");
+        halo.setAttribute("class", "morph-node-halo");
+        wrapper.appendChild(halo);
+        const ring = document.createElementNS(svgNS, "circle");
+        ring.setAttribute("class", "morph-node-ring");
+        wrapper.appendChild(ring);
+        const core = document.createElementNS(svgNS, "circle");
+        core.setAttribute("class", "morph-node-core");
+        wrapper.appendChild(core);
+        morphNodesGroup.appendChild(wrapper);
+      }
+      svgContainer!.insertBefore(morphNodesGroup, originNodeGroup);
+      updateMorphNodes(activeBackgroundScene, containerWidth, containerHeight, true);
+    }
+
+    function updateMorphNodes(
+      scene = activeBackgroundScene,
+      width = window.innerWidth,
+      height = window.innerHeight,
+      immediate = false
+    ) {
+      if (!morphNodesGroup) return;
+      const nodes = getMorphSceneNodes(scene, width, height);
+      morphNodesGroup.dataset.scene = scene;
+      morphNodesGroup.querySelectorAll<SVGGElement>(".morph-node").forEach((wrapper, index) => {
+        const target = nodes[index];
+        if (immediate) wrapper.style.transition = "none";
+        if (target) {
+          wrapper.style.setProperty("--morph-color", target.color);
+          wrapper.style.setProperty("--morph-opacity", "1");
+          wrapper.style.transform = `translate(${target.point.x}px, ${target.point.y}px)`;
+          wrapper.querySelector<SVGCircleElement>(".morph-node-core")?.setAttribute("r", String(target.radius));
+          wrapper.querySelector<SVGCircleElement>(".morph-node-halo")?.setAttribute("r", String(target.radius * 3.2));
+          wrapper.querySelector<SVGCircleElement>(".morph-node-ring")?.setAttribute("r", String(target.radius * 1.8));
+        } else {
+          wrapper.style.setProperty("--morph-opacity", "0");
+        }
+        if (immediate) requestAnimationFrame(() => wrapper.style.removeProperty("transition"));
+      });
+    }
+
+    function interpolateHexColor(from: string, to: string, progress: number) {
+      const fromValue = parseInt(from.slice(1), 16);
+      const toValue = parseInt(to.slice(1), 16);
+      const channel = (shift: number) => Math.round(
+        ((fromValue >> shift) & 255) * (1 - progress) +
+        ((toValue >> shift) & 255) * progress
+      );
+      return `rgb(${channel(16)} ${channel(8)} ${channel(0)})`;
+    }
+
+    function updateMorphNodesProgress(
+      fromScene: string,
+      toScene: string,
+      progress: number
+    ) {
+      if (!morphNodesGroup || fromScene === "project-detail" || toScene === "project-detail") return;
+      const fromNodes = getMorphSceneNodes(fromScene, window.innerWidth, window.innerHeight);
+      const toNodes = getMorphSceneNodes(toScene, window.innerWidth, window.innerHeight);
+      morphNodesGroup.dataset.interpolating = fromScene === toScene ? "false" : "true";
+
+      morphNodesGroup.querySelectorAll<SVGGElement>(".morph-node").forEach((wrapper, index) => {
+        const from = fromNodes[index];
+        const to = toNodes[index];
+        if (!from && !to) {
+          wrapper.style.setProperty("--morph-opacity", "0");
+          return;
+        }
+        const start = from || to;
+        const end = to || from;
+        const visibility = from && to ? 1 : from ? 1 - progress : progress;
+        const x = start!.point.x + (end!.point.x - start!.point.x) * progress;
+        const y = start!.point.y + (end!.point.y - start!.point.y) * progress;
+        const radius = start!.radius + (end!.radius - start!.radius) * progress;
+        wrapper.style.transform = `translate(${x}px, ${y}px)`;
+        wrapper.style.setProperty("--morph-opacity", String(visibility));
+        wrapper.style.setProperty(
+          "--morph-color",
+          interpolateHexColor(start!.color, end!.color, progress)
+        );
+        wrapper.querySelector<SVGCircleElement>(".morph-node-core")?.setAttribute("r", String(radius));
+        wrapper.querySelector<SVGCircleElement>(".morph-node-ring")?.setAttribute("r", String(radius * 1.8));
+        wrapper.querySelector<SVGCircleElement>(".morph-node-halo")?.setAttribute("r", String(radius * 3.2));
+      });
+    }
+
+    function createOriginNodeScene(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      originNodeGroup = document.createElementNS(svgNS, "g");
+      originNodeGroup.setAttribute("class", "origin-node-scene");
+      originNodeGroup.setAttribute("aria-hidden", "true");
+      originNodeGroup.dataset.scene = activeBackgroundScene;
+      originNodeGroup.style.color = "#ffffff";
+
+      for (let index = 0; index < 3; index++) {
+        const connection = document.createElementNS(svgNS, "path");
+        connection.setAttribute("class", "origin-node-connection");
+        connection.dataset.connection = String(index);
+        originNodeGroup.appendChild(connection);
+      }
+
+      const halo = document.createElementNS(svgNS, "circle");
+      halo.setAttribute("class", "origin-node-halo");
+      originNodeGroup.appendChild(halo);
+
+      const ring = document.createElementNS(svgNS, "circle");
+      ring.setAttribute("class", "origin-node-ring");
+      originNodeGroup.appendChild(ring);
+
+      const core = document.createElementNS(svgNS, "circle");
+      core.setAttribute("class", "origin-node-core");
+      originNodeGroup.appendChild(core);
+
+      svgContainer!.appendChild(originNodeGroup);
+      updateOriginNodeGeometry(containerWidth, containerHeight);
+    }
+
+    function updateOriginNodeGeometry(
+      containerWidth: number,
+      containerHeight: number
+    ) {
+      if (!originNodeGroup) return;
+
+      const nodeX = containerWidth * (isMobileDevice ? 0.78 : 0.74);
+      const nodeY = containerHeight * (isMobileDevice ? 0.42 : 0.48);
+      const paths = originNodeGroup.querySelectorAll<SVGPathElement>(
+        ".origin-node-connection"
+      );
+      const pathData = [
+        `M ${nodeX} ${nodeY} C ${nodeX + containerWidth * 0.08} ${nodeY - containerHeight * 0.08}, ${containerWidth * 0.9} ${containerHeight * 0.18}, ${containerWidth + 80} ${containerHeight * 0.12}`,
+        `M ${nodeX} ${nodeY} C ${nodeX + containerWidth * 0.06} ${nodeY + containerHeight * 0.08}, ${containerWidth * 0.86} ${containerHeight * 0.76}, ${containerWidth + 60} ${containerHeight + 40}`,
+        `M ${nodeX} ${nodeY} C ${nodeX - containerWidth * 0.05} ${nodeY + containerHeight * 0.12}, ${nodeX - containerWidth * 0.12} ${containerHeight * 0.82}, ${nodeX - containerWidth * 0.18} ${containerHeight + 60}`,
+      ];
+
+      paths.forEach((path, index) => path.setAttribute("d", pathData[index]));
+      originNodeGroup.querySelectorAll<SVGCircleElement>("circle").forEach(
+        (circle) => {
+          circle.setAttribute("cx", String(nodeX));
+          circle.setAttribute("cy", String(nodeY));
+        }
+      );
+
+      originNodeGroup
+        .querySelector<SVGCircleElement>(".origin-node-halo")
+        ?.setAttribute("r", isMobileDevice ? "28" : "36");
+      originNodeGroup
+        .querySelector<SVGCircleElement>(".origin-node-ring")
+        ?.setAttribute("r", isMobileDevice ? "14" : "18");
+      originNodeGroup
+        .querySelector<SVGCircleElement>(".origin-node-core")
+        ?.setAttribute("r", isMobileDevice ? "6" : "8");
+    }
+
     function initBlobs() {
       blobs = [];
       svgContainer!.innerHTML = "";
@@ -277,6 +2687,7 @@
       svgContainer!.appendChild(defs);
 
       svgGroup = document.createElementNS(svgNS, "g");
+      svgGroup.setAttribute("class", "background-blob-layer");
       svgGroup.setAttribute("filter", "url(#background-soft-blur)");
       svgContainer!.appendChild(svgGroup);
 
@@ -295,52 +2706,12 @@
 
       let initialBlobColorsHex: string[] = [];
 
-      const schemeNames = Object.keys(colorScheme);
-      if (schemeNames.length === 0) {
-        console.error("No color Scheme defined! Using fallback.");
-        initialBlobColorsHex = [
-          "#90EE90",
-          "#6BCB77",
-          "#3CB371",
-          "#32CD32",
-          "#a0e9c4",
-        ];
-      } else {
-        const selectedSchemeName =
-          schemeNames[Math.floor(Math.random() * schemeNames.length)];
-        console.log(`Using scheme: ${selectedSchemeName}`);
-
-        const availableColors = colorScheme[selectedSchemeName]
-          ? [...colorScheme[selectedSchemeName]]
-          : [];
-
-        if (availableColors.length === 0) {
-          console.error(
-            `Selected scheme '${selectedSchemeName}' is empty. Using fallback.`
-          );
-          initialBlobColorsHex = [
-            "#90EE90",
-            "#6BCB77",
-            "#3CB371",
-            "#32CD32",
-            "#a0e9c4",
-          ];
-        } else {
-          const shuffledColors = shuffleArray(availableColors);
-          initialBlobColorsHex = [];
-          for (let i = 0; i < config.numBlobs; i++) {
-            initialBlobColorsHex.push(
-              shuffledColors[i % shuffledColors.length]
-            );
-          }
-
-          if (shuffledColors.length < config.numBlobs) {
-            console.warn(
-              `Scheme '${selectedSchemeName}' has only ${shuffledColors.length} colors. Repeating colors for ${config.numBlobs} blobs.`
-            );
-          }
-        }
-      }
+      const availableColors =
+        colorScheme[activeColorScheme] || colorScheme.green;
+      initialBlobColorsHex = Array.from(
+        { length: config.numBlobs },
+        (_, index) => availableColors[index % availableColors.length]
+      );
 
       const largeBlobCount = Math.ceil(config.numBlobs / 2);
       for (let i = 0; i < largeBlobCount; i++) {
@@ -364,6 +2735,17 @@
           containerHeight
         );
       }
+
+      createOriginNodeScene(containerWidth, containerHeight);
+      createNetworkScene(containerWidth, containerHeight);
+      createEducationScene(containerWidth, containerHeight);
+      createProjectsScene(containerWidth, containerHeight);
+      createExperienceScene(containerWidth, containerHeight);
+      createBeyondScene(containerWidth, containerHeight);
+      createContactScene(containerWidth, containerHeight);
+      createMorphPathsScene(containerWidth, containerHeight);
+      createMorphNodesScene(containerWidth, containerHeight);
+      applyBackgroundScene(activeBackgroundScene, activeProjectId);
     }
 
     function createSingleBlob(
@@ -409,6 +2791,7 @@
         `translate(${position.x}, ${position.y}) rotate(${initialAngle})`
       );
       pathElement.style.opacity = String(config.opacity);
+      pathElement.style.transition = "fill 1.25s ease-in-out";
       svgGroup!.appendChild(pathElement);
 
       const blob: BlobShape = {
@@ -662,6 +3045,16 @@
 
     window.addEventListener("resize", () => {
       needsRectUpdate = true;
+      updateOriginNodeGeometry(window.innerWidth, window.innerHeight);
+      updateNetworkGeometry(window.innerWidth, window.innerHeight);
+      updateEducationGeometry(window.innerWidth, window.innerHeight);
+      updateProjectsGeometry(window.innerWidth, window.innerHeight);
+      updateExperienceGeometry(window.innerWidth, window.innerHeight);
+      updateBeyondGeometry(window.innerWidth, window.innerHeight);
+      updateContactGeometry(window.innerWidth, window.innerHeight);
+      updateMorphPaths(activeBackgroundScene, window.innerWidth, window.innerHeight);
+      updateMorphNodes(activeBackgroundScene, window.innerWidth, window.innerHeight);
+      if (activePreviewProjectId) setProjectPreview(activePreviewProjectId);
     });
 
     window.addEventListener("mousemove", (event) => {
@@ -706,16 +3099,42 @@
       }
       blobs.length = 0;
       mousePos = null;
+      originNodeGroup = null;
+      networkGroup = null;
+      networkConnections = [];
+      educationGroup = null;
+      projectsGroup = null;
+      projectTechnologiesGroup = null;
+      experienceGroup = null;
+      beyondGroup = null;
+      contactGroup = null;
+      morphPathsGroup = null;
+      morphNodesGroup = null;
+      stopNetworkStateChanges();
+      stopContactChannelChanges();
+      stopExperiencePhotoRotation();
+      stopProjectPhotoRotation();
+      document.removeEventListener(
+        "portfolio:background-theme",
+        handleColorSchemeChange
+      );
+      document.removeEventListener(
+        "portfolio:background-progress",
+        handleBackgroundProgress
+      );
+      document.removeEventListener("pointerover", handleProjectPreviewEnter);
+      document.removeEventListener("pointerout", handleProjectPreviewLeave);
+      document.removeEventListener("focusin", handleProjectPreviewEnter);
+      document.removeEventListener("focusout", handleProjectPreviewLeave);
     }
 
-    document.addEventListener("astro:before-preparation", cleanup);
     document.addEventListener("beforeunload", cleanup);
   } else {
     console.error("Dynamic background SVG container not found.");
   }
 </script>
 
-<style>
+<style is:global>
   #dynamic-background-container {
     position: fixed;
     pointer-events: none;
@@ -724,7 +3143,6 @@
     width: 100%;
     height: 100%;
     z-index: 0;
-    opacity: var(--dynamic-bg-opacity);
     overflow: hidden;
     contain: strict;
     transform: translateZ(0);
@@ -733,8 +3151,1283 @@
   }
 
   #dynamic-background-svg {
+    position: relative;
+    z-index: 1;
     display: block;
     transform: translateZ(0);
     backface-visibility: hidden;
+  }
+
+  .project-preview-layer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .education-campus-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition:
+      opacity 1s ease,
+      transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transform: scale(1.035);
+  }
+
+  .experience-photo-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.85s ease;
+  }
+
+  body[data-background-scene="experience"] .experience-photo-background,
+  body[data-background-scene="timeline"] .experience-photo-background {
+    opacity: 0.48;
+  }
+
+  .experience-photo-background img {
+    position: absolute;
+    inset: 0 auto 0 -4%;
+    width: min(67vw, 1080px);
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    filter: saturate(0.68) contrast(0.92);
+    transform: scale(1.035);
+    transition:
+      opacity 1.25s ease,
+      transform 5.8s ease-out;
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 0%,
+      #000 48%,
+      rgb(0 0 0 / 22%) 76%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      #000 0%,
+      #000 48%,
+      rgb(0 0 0 / 22%) 76%,
+      transparent 100%
+    );
+  }
+
+  .experience-photo-background img.is-active {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  body[data-background-scene="education"] .education-campus-background {
+    opacity: 0.34;
+    transform: scale(1);
+  }
+
+  .education-campus-background img {
+    position: absolute;
+    top: 0;
+    right: -4%;
+    width: min(72vw, 1120px);
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    filter: saturate(0.72) contrast(0.94);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgb(0 0 0 / 18%) 12%,
+      #000 42%,
+      #000 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      rgb(0 0 0 / 18%) 12%,
+      #000 42%,
+      #000 100%
+    );
+  }
+
+  @media (max-width: 800px) {
+    body[data-background-scene="education"] .education-campus-background {
+      opacity: 0.22;
+    }
+
+    .education-campus-background img {
+      right: -38%;
+      width: 120vw;
+    }
+
+    body[data-background-scene="experience"] .experience-photo-background {
+      opacity: 0.34;
+    }
+
+    body[data-background-scene="timeline"] .experience-photo-background {
+      opacity: 0.18;
+    }
+
+    .experience-photo-background img {
+      left: -36%;
+      width: 118vw;
+    }
+  }
+
+  .project-hover-preview {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+  }
+
+  .project-hover-preview img {
+    position: absolute;
+    top: 0;
+    left: -4%;
+    width: min(68vw, 1080px);
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: center;
+    opacity: 0;
+    filter: saturate(0.76) contrast(0.96);
+    transform: scale(1.025);
+    transition:
+      opacity 0.65s ease,
+      transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+    -webkit-mask-image: linear-gradient(
+      to right,
+      #000 0%,
+      #000 52%,
+      rgb(0 0 0 / 25%) 76%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      #000 0%,
+      #000 52%,
+      rgb(0 0 0 / 25%) 76%,
+      transparent 100%
+    );
+  }
+
+  .project-hover-preview.is-visible img {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+
+  .project-hover-preview.is-ambient img {
+    opacity: 0.58;
+    transform: scale(1);
+  }
+
+  .project-preview-tech-nodes {
+    position: absolute;
+    top: calc(var(--project-node-y, 50%) - 70px);
+    left: calc(var(--project-node-x, 74%) - 70px);
+    width: 140px;
+    height: 140px;
+    z-index: 1;
+    transition:
+      top 0.5s ease,
+      left 0.5s ease;
+  }
+
+  .project-preview-tech-node {
+    position: absolute;
+    left: var(--tech-x, 12%);
+    top: var(--tech-y, 18%);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #e7f8ff;
+    font-family: var(--font-family-sans);
+    font-size: 8px;
+    font-weight: 650;
+    letter-spacing: 0;
+    opacity: 0;
+    transform: scale(0.5);
+    transition:
+      opacity 0.35s ease var(--tech-delay, 0ms),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1) var(--tech-delay, 0ms);
+  }
+
+  .project-hover-preview.is-visible .project-preview-tech-node {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+
+  .project-preview-tech-node i {
+    width: 5px;
+    height: 5px;
+    display: block;
+    border: 1px solid #ffffff;
+    border-radius: 50%;
+    background: #8de4ee;
+    box-shadow: 0 0 0 6px rgb(141 228 238 / 12%);
+  }
+
+  .project-preview-tech-node b {
+    font: inherit;
+    white-space: nowrap;
+  }
+
+  .project-preview-tech-node:nth-child(1) { --tech-x: 4%; --tech-y: 42%; --tech-delay: 40ms; }
+  .project-preview-tech-node:nth-child(2) { --tech-x: 24%; --tech-y: 8%; --tech-delay: 90ms; }
+  .project-preview-tech-node:nth-child(3) { --tech-x: 60%; --tech-y: 0%; --tech-delay: 140ms; }
+  .project-preview-tech-node:nth-child(4) { --tech-x: 75%; --tech-y: 54%; --tech-delay: 190ms; }
+  .project-preview-tech-node:nth-child(5) { --tech-x: 53%; --tech-y: 88%; --tech-delay: 240ms; }
+  .project-preview-tech-node:nth-child(6) { --tech-x: 15%; --tech-y: 78%; --tech-delay: 290ms; }
+
+  @media (max-width: 800px) {
+    .project-hover-preview img {
+      left: -38%;
+      width: 118vw;
+      opacity: 0;
+    }
+
+    .project-hover-preview.is-visible img {
+      opacity: 0.52;
+    }
+
+    .project-hover-preview.is-ambient img {
+      opacity: 0.4;
+    }
+
+    .project-preview-tech-node b {
+      display: none;
+    }
+  }
+
+  .background-blob-layer {
+    opacity: var(--dynamic-bg-opacity);
+  }
+
+  .origin-node-scene {
+    color: #ffffff;
+    opacity: 0;
+    transform-origin: 74% 48%;
+    transition:
+      opacity 0.7s ease,
+      transform 1s cubic-bezier(0.22, 1, 0.36, 1),
+      color 1.25s ease-in-out;
+  }
+
+  .origin-node-scene[data-scene="origin"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="network"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="education"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="projects"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="experience"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="beyond"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="contact"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="timeline"] {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .origin-node-scene[data-scene="network"] .origin-node-connection,
+  .origin-node-scene[data-scene="education"] .origin-node-connection,
+  .origin-node-scene[data-scene="projects"] .origin-node-connection,
+  .origin-node-scene[data-scene="experience"] .origin-node-connection,
+  .origin-node-scene[data-scene="beyond"] .origin-node-connection,
+  .origin-node-scene[data-scene="contact"] .origin-node-connection,
+  .origin-node-scene[data-scene="timeline"] .origin-node-connection {
+    opacity: 0;
+  }
+
+  .origin-node-scene[data-scene="education"] .origin-node-ring {
+    stroke: var(--text-color);
+  }
+
+  .origin-node-connection {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.86;
+    stroke-dasharray: 10 8;
+    animation: originLineFlow 12s linear infinite;
+    transition: opacity 0.55s ease;
+  }
+
+  .origin-node-connection[data-connection="1"] {
+    opacity: 0.7;
+    animation-duration: 16s;
+    animation-direction: reverse;
+  }
+
+  .origin-node-connection[data-connection="2"] {
+    opacity: 0.56;
+    animation-duration: 20s;
+  }
+
+  .origin-node-halo {
+    fill: currentColor;
+    opacity: 0.14;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: originNodeBreath 3.6s ease-in-out infinite;
+  }
+
+  .origin-node-ring {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.9;
+  }
+
+  .origin-node-core {
+    fill: currentColor;
+  }
+
+  .background-morph-paths {
+    opacity: 1;
+    transition: opacity 0.45s ease;
+  }
+
+  .background-morph-paths[data-scene="page"],
+  .background-morph-paths[data-scene="project-detail"] {
+    opacity: 0;
+  }
+
+  .morph-path {
+    --morph-path-color: #ffffff;
+    --morph-path-opacity: 0;
+    fill: none;
+    stroke: var(--morph-path-color);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: var(--morph-path-opacity);
+    stroke-dasharray: 6 9;
+    animation: morphPathFlow 8s linear infinite;
+    transition:
+      d 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.7s ease,
+      stroke 0.9s ease;
+  }
+
+  .background-morph-paths[data-interpolating="true"] .morph-path {
+    transition:
+      d 90ms linear,
+      opacity 90ms linear,
+      stroke 90ms linear;
+  }
+
+  .background-morph-nodes {
+    opacity: 1;
+    transition: opacity 0.45s ease;
+  }
+
+  .background-morph-nodes[data-scene="origin"],
+  .background-morph-nodes[data-scene="page"],
+  .background-morph-nodes[data-scene="project-detail"] {
+    opacity: 0;
+  }
+
+  .morph-node {
+    --morph-color: #ffffff;
+    --morph-opacity: 0;
+    color: var(--morph-color);
+    opacity: var(--morph-opacity);
+    transition:
+      transform 1.15s cubic-bezier(0.22, 1, 0.36, 1),
+      opacity 0.7s ease,
+      color 0.9s ease;
+  }
+
+  .background-morph-nodes[data-interpolating="true"] .morph-node {
+    transition:
+      transform 90ms linear,
+      opacity 90ms linear,
+      color 90ms linear;
+  }
+
+  .background-morph-nodes[data-interpolating="true"] .morph-node-core,
+  .background-morph-nodes[data-interpolating="true"] .morph-node-ring,
+  .background-morph-nodes[data-interpolating="true"] .morph-node-halo {
+    transition: r 90ms linear;
+  }
+
+  .morph-node-core {
+    fill: currentColor;
+    stroke: rgb(255 255 255 / 70%);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+    transition: r 0.9s ease;
+  }
+
+  .morph-node-ring {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.48;
+    transition: r 0.9s ease;
+  }
+
+  .morph-node-halo {
+    fill: currentColor;
+    opacity: 0.11;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: r 0.9s ease;
+    animation: morphNodeBreath 4s ease-in-out infinite;
+  }
+
+  /* Paths and labels belong to each tableau; satellite points persist above them. */
+  .origin-node-connection,
+  .network-connection,
+  .education-timeline-line,
+  .background-projects-scene[data-scene="projects"] .project-connection,
+  .experience-chart-line,
+  .beyond-track,
+  .contact-flow,
+  .network-node,
+  .network-node-halo,
+  .education-node,
+  .education-node-halo,
+  .background-projects-scene[data-scene="projects"] .project-node,
+  .background-projects-scene[data-scene="projects"] .project-node-ring,
+  .background-projects-scene[data-scene="projects"] .project-node-halo,
+  .experience-node,
+  .experience-node-halo,
+  .beyond-node,
+  .beyond-node-halo,
+  .contact-node-left {
+    opacity: 0 !important;
+  }
+
+  .background-projects-scene[data-scene="project-detail"] .project-connection {
+    opacity: 0.7;
+  }
+
+  .background-network-scene {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+  }
+
+  .background-network-scene[data-scene="network"] {
+    opacity: 0.88;
+  }
+
+  .network-connection {
+    fill: none;
+    stroke: #8cf2c4;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.68;
+    transition:
+      stroke 0.5s ease,
+      opacity 0.5s ease,
+      stroke-dasharray 0.5s ease;
+  }
+
+  .network-connection[data-state="open"] {
+    stroke: #8cf2c4;
+    stroke-dasharray: 1 0;
+    opacity: 0.72;
+  }
+
+  .network-connection[data-state="cut"] {
+    stroke: #ff796e;
+    stroke-dasharray: 34 18;
+    opacity: 0.58;
+    animation: cutConnectionDrift 2.8s linear infinite;
+  }
+
+  .network-node {
+    fill: #ffffff;
+    stroke: rgb(255 255 255 / 55%);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+    transition:
+      fill 0.55s ease,
+      stroke 0.55s ease;
+  }
+
+  .network-node[data-tone="green"] {
+    fill: #b8f5d8;
+  }
+
+  .network-node[data-tone="amber"] {
+    fill: #ffd778;
+  }
+
+  .network-node[data-tone="red"] {
+    fill: #ff8a7f;
+  }
+
+  .network-node[data-tone="white"] {
+    fill: #ffffff;
+  }
+
+  .network-node-halo {
+    fill: #ffffff;
+    opacity: 0.06;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: networkNodeBreath 4.8s ease-in-out infinite;
+  }
+
+  .network-node-halo[data-node="2"],
+  .network-node-halo[data-node="5"] {
+    animation-delay: -2.2s;
+  }
+
+  .network-node-value {
+    fill: #ffffff;
+    font-family: var(--font-family-sans);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0;
+    text-anchor: middle;
+    opacity: 0.88;
+    transition:
+      fill 0.55s ease,
+      opacity 0.55s ease;
+  }
+
+  .network-node-value[data-tone="positive"] {
+    fill: #b8f5d8;
+  }
+
+  .network-node-value[data-tone="negative"] {
+    fill: #ff8a7f;
+  }
+
+  .market-annotation {
+    fill: #ffffff;
+    font-family: var(--font-family-sans);
+    font-size: 9px;
+    font-weight: 750;
+    letter-spacing: 0;
+    text-anchor: middle;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .market-annotation[data-tone="positive"] {
+    fill: #b8f5d8;
+  }
+
+  .market-annotation[data-tone="negative"] {
+    fill: #ff8a7f;
+  }
+
+  .market-annotation[data-tone="neutral"] {
+    fill: #ffd778;
+  }
+
+  .market-annotation.is-visible {
+    animation: marketAnnotationFlash 1.05s ease-out both;
+  }
+
+  .market-regime-annotation {
+    font-size: 10px;
+    opacity: 0;
+  }
+
+  .background-education-scene {
+    color: var(--text-color);
+    opacity: 0;
+    transition:
+      opacity 0.8s ease,
+      color 1.25s ease;
+  }
+
+  .background-education-scene[data-scene="education"] {
+    opacity: 0.82;
+  }
+
+  .education-timeline-line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.66;
+  }
+
+  .education-node {
+    fill: currentColor;
+    stroke: var(--bg-color);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .education-node-halo {
+    fill: currentColor;
+    opacity: 0.08;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: educationNodeBreath 4.2s ease-in-out infinite;
+  }
+
+  .education-date {
+    fill: currentColor;
+    font-family: var(--font-family-sans);
+    font-size: 12px;
+    font-weight: 600;
+    text-anchor: middle;
+    letter-spacing: 0;
+    opacity: 0.82;
+  }
+
+  .background-projects-scene {
+    opacity: 0;
+    transform: scale(1);
+    transition:
+      opacity 0.85s ease,
+      transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .background-projects-scene[data-scene="projects"] {
+    opacity: 0.92;
+    transform: scale(1);
+  }
+
+  .background-projects-scene[data-scene="project-detail"] {
+    opacity: 0.96;
+  }
+
+  .background-projects-scene[data-scene="project-detail"]
+    [data-active="false"] {
+    opacity: 0.1;
+  }
+
+  .background-projects-scene [data-project] {
+    transition:
+      opacity 0.7s ease,
+      fill 0.7s ease,
+      stroke 0.7s ease;
+  }
+
+  .background-projects-scene[data-scene="project-detail"]
+    .project-node[data-active="true"] {
+    fill: #ffffff;
+  }
+
+  .background-projects-scene[data-scene="project-detail"]
+    .project-node-halo[data-active="true"] {
+    opacity: 0.22;
+  }
+
+  .project-connection {
+    fill: none;
+    stroke: #a9def7;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.7;
+    stroke-dasharray: 4 7;
+    animation: projectConnectionFlow 9s linear infinite;
+  }
+
+  .project-node-halo {
+    fill: #7ac7e8;
+    opacity: 0.1;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: projectNodeBreath 4s ease-in-out infinite;
+  }
+
+  .project-node-ring {
+    fill: none;
+    stroke: #d8f3ff;
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.76;
+  }
+
+  .project-node {
+    fill: #ffffff;
+    stroke: rgb(255 255 255 / 65%);
+    stroke-width: 1.2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .project-node[data-tone="cyan"] {
+    fill: #8de4ee;
+  }
+
+  .project-node[data-tone="blue"] {
+    fill: #8ebcf4;
+  }
+
+  .project-node[data-tone="white"] {
+    fill: #ffffff;
+  }
+
+  .project-node-title {
+    fill: #d8f3ff;
+    font-family: var(--font-family-sans);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0;
+    opacity: 0.88;
+  }
+
+  .background-project-technologies {
+    opacity: 0;
+    transform: translate(0, 0);
+    transition:
+      opacity 0.75s ease 0.2s,
+      transform 1s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .background-project-technologies[data-scene="project-detail"] {
+    opacity: 0.94;
+  }
+
+  .project-technology-cluster {
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .project-technology-cluster[data-active="true"] {
+    opacity: 1;
+  }
+
+  .technology-connection {
+    fill: none;
+    stroke: #9edcf3;
+    stroke-width: 1.25;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.58;
+    stroke-dasharray: 3 6;
+    animation: technologyConnectionFlow 7s linear infinite;
+  }
+
+  .technology-node {
+    fill: #d8f3ff;
+    stroke: #ffffff;
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .technology-label {
+    fill: #e7f8ff;
+    font-family: var(--font-family-sans);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0;
+    opacity: 0.86;
+  }
+
+  .background-experience-scene {
+    color: #ffe17a;
+    opacity: 0;
+    transition: opacity 0.85s ease;
+  }
+
+  .background-experience-scene[data-scene="experience"] {
+    opacity: 0.92;
+  }
+
+  .background-experience-scene[data-scene="timeline"] {
+    opacity: 0.92;
+  }
+
+  .experience-chart-guide {
+    stroke: currentColor;
+    stroke-width: 1;
+    stroke-dasharray: 3 12;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.14;
+  }
+
+  .experience-chart-line {
+    fill: none;
+    stroke: #fff0a8;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    opacity: 0.94;
+  }
+
+  .experience-chart-line-underlay {
+    stroke: #d59418;
+    stroke-width: 11;
+    opacity: 0.12;
+  }
+
+  .experience-chart-area {
+    fill: #f2c94c;
+    opacity: 0.065;
+  }
+
+  .experience-node {
+    fill: #ffd35a;
+    stroke: #ffffff;
+    stroke-width: 1.5;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .experience-node-halo {
+    fill: #ffd35a;
+    opacity: 0.1;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: experienceNodeBreath 4.1s ease-in-out infinite;
+  }
+
+  .experience-company,
+  .experience-year,
+  .experience-role,
+  .experience-tags {
+    fill: #fff4bd;
+    stroke: rgb(58 47 17 / 72%);
+    stroke-width: 3px;
+    paint-order: stroke fill;
+    font-family: var(--font-family-sans);
+    letter-spacing: 0;
+  }
+
+  .experience-company {
+    font-size: 12px;
+    font-weight: 650;
+  }
+
+  .experience-year {
+    font-size: 10px;
+    font-weight: 500;
+    opacity: 0.72;
+  }
+
+  .experience-role {
+    font-size: 9px;
+    font-weight: 600;
+    opacity: 0.68;
+  }
+
+  .experience-tags {
+    font-size: 8px;
+    font-weight: 500;
+    opacity: 0.46;
+  }
+
+  .timeline-education-school,
+  .timeline-education-footnote {
+    fill: #8de4ee;
+    stroke: rgb(35 52 42 / 78%);
+    stroke-width: 3px;
+    paint-order: stroke fill;
+    font-family: var(--font-family-sans);
+    letter-spacing: 0;
+    opacity: 0;
+    transition: opacity 0.55s ease;
+  }
+
+  .background-experience-scene[data-scene="timeline"] .timeline-education-school {
+    font-size: 12px;
+    font-weight: 650;
+    opacity: 0.94;
+  }
+
+  .background-experience-scene[data-scene="timeline"] .timeline-education-footnote {
+    font-size: 9px;
+    font-weight: 500;
+    opacity: 0.68;
+  }
+
+  .background-experience-scene[data-scene="timeline"] .experience-role,
+  .background-experience-scene[data-scene="timeline"] .experience-tags {
+    opacity: 0;
+  }
+
+  @media (max-width: 800px) {
+    .background-experience-scene[data-scene="timeline"] {
+      display: none;
+    }
+
+    .background-morph-paths[data-scene="timeline"],
+    .background-morph-nodes[data-scene="timeline"],
+    .origin-node-scene[data-scene="timeline"] {
+      display: none;
+    }
+  }
+
+  .background-beyond-scene {
+    opacity: 0;
+    transition: opacity 0.9s ease;
+  }
+
+  .background-beyond-scene[data-scene="beyond"] {
+    opacity: 0.94;
+  }
+
+  .beyond-track {
+    fill: none;
+    stroke: url("#beyond-track-fade");
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 12 9;
+    animation: beyondTrackFlow 8s linear infinite;
+  }
+
+  .beyond-track-underlay {
+    stroke-width: 13;
+    stroke-dasharray: none;
+    opacity: 0.12;
+    animation: none;
+  }
+
+  .beyond-node {
+    fill: #ffd0a8;
+    stroke: #ffffff;
+    stroke-width: 1.3;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .beyond-node-start {
+    fill: #f1a36d;
+    stroke-width: 2;
+  }
+
+  .beyond-node-halo {
+    fill: #f4a574;
+    opacity: 0.1;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: beyondNodeBreath 4.5s ease-in-out infinite;
+  }
+
+  .beyond-label {
+    fill: #ffe4ce;
+    font-family: var(--font-family-sans);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: 0;
+    text-anchor: middle;
+    opacity: 0.84;
+  }
+
+  .background-contact-scene {
+    color: #e5c8f0;
+    opacity: 0;
+    transition: opacity 0.85s ease;
+  }
+
+  .background-contact-scene[data-scene="contact"] {
+    opacity: 0.96;
+  }
+
+  .contact-flow {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    vector-effect: non-scaling-stroke;
+    stroke-dasharray: 4 13;
+    animation: contactFlow 3.2s linear infinite;
+    opacity: 0.86;
+  }
+
+  .contact-flow-2 {
+    stroke: #ffffff;
+    stroke-width: 1.2;
+    animation-direction: reverse;
+    animation-duration: 4.1s;
+    opacity: 0.46;
+  }
+
+  .contact-node {
+    fill: #ffffff;
+    stroke: #d79bea;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .contact-node-halo {
+    fill: #d79bea;
+    opacity: 0.13;
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: contactNodeBreath 3.4s ease-in-out infinite;
+  }
+
+  .contact-node-right {
+    animation-delay: -1.7s;
+  }
+
+  .contact-message-node {
+    fill: #ffffff;
+    stroke: #d79bea;
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 7px rgb(255 255 255 / 75%));
+  }
+
+  .contact-message-node-2 {
+    fill: #d79bea;
+    stroke: #ffffff;
+    opacity: 0.82;
+  }
+
+  .contact-channel-icon {
+    color: #ffffff;
+    opacity: 0;
+    transition:
+      opacity 0.38s ease,
+      color 0.7s ease;
+  }
+
+  .contact-channel-icon rect,
+  .contact-channel-icon path {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .contact-channel-phone path {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .contact-channel-linkedin text {
+    fill: currentColor;
+    font-family: Arial, sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0;
+  }
+
+  .background-contact-scene[data-left-channel="mail"] .contact-channel-mail[data-endpoint="left"],
+  .background-contact-scene[data-left-channel="phone"] .contact-channel-phone[data-endpoint="left"],
+  .background-contact-scene[data-left-channel="linkedin"] .contact-channel-linkedin[data-endpoint="left"],
+  .background-contact-scene[data-right-channel="mail"] .contact-channel-mail[data-endpoint="right"],
+  .background-contact-scene[data-right-channel="phone"] .contact-channel-phone[data-endpoint="right"],
+  .background-contact-scene[data-right-channel="linkedin"] .contact-channel-linkedin[data-endpoint="right"] {
+    opacity: 0.94;
+  }
+
+  @keyframes originLineFlow {
+    to {
+      stroke-dashoffset: -72;
+    }
+  }
+
+  @keyframes originNodeBreath {
+    0%,
+    100% {
+      opacity: 0.12;
+      transform: scale(0.88);
+    }
+    50% {
+      opacity: 0.24;
+      transform: scale(1.18);
+    }
+  }
+
+  @keyframes morphNodeBreath {
+    0%,
+    100% {
+      opacity: 0.07;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 0.17;
+      transform: scale(1.16);
+    }
+  }
+
+  @keyframes morphPathFlow {
+    to {
+      stroke-dashoffset: -60;
+    }
+  }
+
+  @keyframes marketAnnotationFlash {
+    0% {
+      opacity: 0;
+      transform: translateY(5px);
+    }
+    18%,
+    62% {
+      opacity: 0.82;
+      transform: translateY(0);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+  }
+
+  @keyframes cutConnectionDrift {
+    to {
+      stroke-dashoffset: -52;
+    }
+  }
+
+  @keyframes networkNodeBreath {
+    0%,
+    100% {
+      opacity: 0.04;
+      transform: scale(0.88);
+    }
+    50% {
+      opacity: 0.13;
+      transform: scale(1.16);
+    }
+  }
+
+  @keyframes educationNodeBreath {
+    0%,
+    100% {
+      opacity: 0.05;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 0.14;
+      transform: scale(1.14);
+    }
+  }
+
+  @keyframes projectConnectionFlow {
+    to {
+      stroke-dashoffset: -66;
+    }
+  }
+
+  @keyframes projectNodeBreath {
+    0%,
+    100% {
+      opacity: 0.07;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 0.17;
+      transform: scale(1.15);
+    }
+  }
+
+  @keyframes technologyConnectionFlow {
+    to {
+      stroke-dashoffset: -54;
+    }
+  }
+
+  @keyframes experienceNodeBreath {
+    0%,
+    100% {
+      opacity: 0.06;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 0.18;
+      transform: scale(1.16);
+    }
+  }
+
+  @keyframes beyondTrackFlow {
+    to {
+      stroke-dashoffset: -84;
+    }
+  }
+
+  @keyframes beyondNodeBreath {
+    0%,
+    100% {
+      opacity: 0.06;
+      transform: scale(0.9);
+    }
+    50% {
+      opacity: 0.18;
+      transform: scale(1.17);
+    }
+  }
+
+  @keyframes contactFlow {
+    to {
+      stroke-dashoffset: -68;
+    }
+  }
+
+  @keyframes contactNodeBreath {
+    0%,
+    100% {
+      opacity: 0.07;
+      transform: scale(0.88);
+    }
+    50% {
+      opacity: 0.2;
+      transform: scale(1.18);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-message-node {
+      display: none;
+    }
+
+    .market-annotation.is-visible {
+      animation: none;
+      opacity: 0;
+    }
+
+    .origin-node-connection,
+    .origin-node-halo,
+    .morph-path,
+    .morph-node-halo,
+    .network-connection,
+    .network-node-halo,
+    .education-node-halo,
+    .project-connection,
+    .project-node-halo,
+    .technology-connection,
+    .experience-node-halo,
+    .beyond-track,
+    .beyond-node-halo,
+    .contact-flow,
+    .contact-node-halo {
+      animation: none;
+    }
   }
 </style>

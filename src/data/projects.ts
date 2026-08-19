@@ -1,4 +1,4 @@
-import projectsData from "../../projects.json";
+import projectsData from "../../content/projects.json";
 
 export interface LocalizedValue<T = string> { fr: T; en: T }
 export interface ProjectImage {

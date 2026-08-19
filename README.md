@@ -11,7 +11,7 @@ Le contenu a été séparé du code afin de pouvoir mettre le portfolio à jour 
 Les deux fichiers importants se trouvent à la racine du dépôt :
 
 - [`profile.json`](profile.json) contient l'identité, les coordonnées, le texte d'introduction, les expériences, la formation, les compétences et la section « Au-delà du CV ».
-- [`projects.json`](projects.json) contient les projets et toutes les informations de leurs pages détaillées.
+- [`content/projects.json`](content/projects.json) contient les projets et toutes les informations de leurs pages détaillées.
 
 Pour modifier un fichier depuis GitHub :
 
@@ -43,7 +43,7 @@ Une valeur indisponible peut être remplacée par `null`, sans guillemets. Les b
 
 ## Ajouter un projet
 
-Les projets sont définis dans `projects.json`. Pour en ajouter un, dupliquer un objet existant dans la liste `projects`, puis modifier ses valeurs.
+Les projets sont définis dans `content/projects.json`. Pour en ajouter un, dupliquer un objet existant dans la liste `projects`, puis modifier ses valeurs.
 
 Chaque projet possède notamment :
 

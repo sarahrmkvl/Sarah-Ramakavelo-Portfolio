@@ -9,9 +9,9 @@ let profile;
 let projectsFile;
 try {
   profile = JSON.parse(await readFile(new URL("../profile.json", import.meta.url), "utf8"));
-  projectsFile = JSON.parse(await readFile(new URL("../projects.json", import.meta.url), "utf8"));
+  projectsFile = JSON.parse(await readFile(new URL("../content/projects.json", import.meta.url), "utf8"));
 } catch (error) {
-  fail(`profile.json ou projects.json n'est pas un JSON valide. ${error.message}`);
+  fail(`profile.json ou content/projects.json n'est pas un JSON valide. ${error.message}`);
 }
 
 const requiredString = (value, path) => {
@@ -59,7 +59,7 @@ for (const [index, item] of (profile.education ?? []).entries()) {
   }
 }
 
-if (!Array.isArray(projectsFile?.projects)) fail("« projects.json > projects » doit être une liste.");
+if (!Array.isArray(projectsFile?.projects)) fail("« content/projects.json > projects » doit être une liste.");
 const projectIds = new Set();
 for (const [index, item] of projectsFile.projects.entries()) {
   requiredString(item.id, `projects[${index}].id`);

@@ -7,9 +7,10 @@ import FeaturedProjectCard from "../FeaturedProjectCard.astro"; // Import the ne
 import Button from "../../common/Button.astro";
 import { sitePath } from "../../../data/profile";
 
-const featuredProjects: ProjectDataItem[] = allProjectsData.filter(
-  (project) => project.isFeatured
-);
+const featuredProjects: ProjectDataItem[] = [
+  ...allProjectsData.filter((project) => project.isFeatured),
+  ...allProjectsData.filter((project) => !project.isFeatured),
+].slice(0, 4);
 const projectsUrl = sitePath("/projects");
 
 ---

@@ -13,7 +13,14 @@ const { project } = Astro.props;
 const label = (fr: string, en: string) => ({ "data-i18n-fr": fr, "data-i18n-en": en });
 ---
 
-<SubPageLayout title={project.name.fr} titleEn={project.name.en}>
+<SubPageLayout
+  title={project.name.fr}
+  titleEn={project.name.en}
+  backgroundTheme="blue"
+  backgroundScene="project-detail"
+  backgroundProjectId={project.id}
+  backHref={sitePath("/projects")}
+>
   <article class="case-study">
     <header class="case-intro">
       <p class="eyebrow" {...languageAttributes(project.timeframe)}>{project.timeframe.fr}</p>
@@ -28,10 +35,27 @@ const label = (fr: string, en: string) => ({ "data-i18n-fr": fr, "data-i18n-en":
 
     {project.images.length > 0 && <section class="gallery" aria-label="Galerie du projet">
       {project.images.map((image, index) => <figure class:list={{ wide: index === 0 }}>
-        <img src={sitePath(image.src)} alt={image.alt.fr} loading={index === 0 ? "eager" : "lazy"} />
+        <button
+          class="gallery-trigger"
+          type="button"
+          data-lightbox-src={sitePath(image.src)}
+          data-lightbox-alt-fr={image.alt.fr}
+          data-lightbox-alt-en={image.alt.en}
+          aria-label={`Agrandir : ${image.alt.fr}`}
+          title="Agrandir l’image"
+        >
+          <img class="gallery-image" src={sitePath(image.src)} alt={image.alt.fr} loading={index === 0 ? "eager" : "lazy"} />
+        </button>
         {image.caption && <figcaption {...languageAttributes(image.caption)}>{image.caption.fr}</figcaption>}
       </figure>)}
     </section>}
+
+    <dialog class="project-lightbox" aria-label="Aperçu agrandi">
+      <button class="lightbox-close" type="button" aria-label="Fermer" title="Fermer">
+        <Icon name="ri:close-line" />
+      </button>
+      <img class="lightbox-image" src="" alt="" />
+    </dialog>
 
     <div class="case-sections">
       <section><h2 {...label("Contexte", "Context")}>Contexte</h2><p {...languageAttributes(project.context)}>{project.context.fr}</p></section>
@@ -58,13 +82,55 @@ const label = (fr: string, en: string) => ({ "data-i18n-fr": fr, "data-i18n-en":
   .gallery { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin:0 0 5rem; }
   figure { margin:0; }
   figure.wide { grid-column:1 / -1; }
-  img { width:100%; height:auto; max-height:680px; object-fit:contain; display:block; border:1px solid var(--card-border-color); border-radius:8px; background:var(--bg-color); }
+  .gallery-trigger { width:100%; padding:0; display:block; border:0; border-radius:8px; background:none; cursor:zoom-in; overflow:hidden; }
+  .gallery-trigger:focus-visible { outline:2px solid var(--text-color); outline-offset:4px; }
+  .gallery-image { width:100%; height:auto; max-height:680px; object-fit:contain; display:block; border:1px solid var(--card-border-color); border-radius:8px; background:var(--bg-color); transition:transform .35s ease, filter .35s ease; }
+  .gallery-trigger:hover .gallery-image { transform:scale(1.012); filter:brightness(1.06); }
   figcaption { margin-top:.5rem; font-family:var(--font-family-sans); font-size:.75rem; color:var(--text-muted); }
+  .project-lightbox { width:100vw; max-width:none; height:100vh; max-height:none; margin:0; padding:clamp(3.5rem,7vw,6rem); border:0; background:rgb(8 14 18 / 88%); color:#fff; overflow:hidden; }
+  .project-lightbox[open] { display:grid; place-items:center; }
+  .project-lightbox::backdrop { background:rgb(3 7 10 / 68%); backdrop-filter:blur(8px); }
+  .lightbox-image { width:auto; max-width:100%; height:auto; max-height:calc(100vh - clamp(7rem,14vw,12rem)); object-fit:contain; display:block; border:1px solid rgb(255 255 255 / 22%); box-shadow:0 24px 80px rgb(0 0 0 / 48%); }
+  .lightbox-close { position:fixed; top:1.25rem; right:1.25rem; width:44px; height:44px; padding:0; display:grid; place-items:center; border:1px solid rgb(255 255 255 / 45%); border-radius:50%; background:rgb(15 22 27 / 58%); color:#fff; cursor:pointer; }
+  .lightbox-close :global(svg) { width:22px; height:22px; }
   .case-sections section { display:grid; grid-template-columns:minmax(130px,.35fr) minmax(0,1fr); gap:2rem; padding:2.5rem 0; border-top:1px solid var(--card-border-color); }
   .case-sections section:last-child { border-bottom:1px solid var(--card-border-color); }
   h2 { margin:0; font-size:1.2rem; }
   .case-sections p, .case-sections li { margin-top:0; font-size:1.08rem; line-height:1.75; }
   .case-sections ol, .case-sections ul { margin:0; padding-left:1.4rem; }
   .back-to-projects { margin-top:3rem; }
-  @media(max-width:680px){ .gallery,.case-sections section{grid-template-columns:1fr}.gallery figure{grid-column:auto}.case-sections section{gap:1rem} }
+  @media(max-width:680px){ .gallery,.case-sections section{grid-template-columns:1fr}.gallery figure{grid-column:auto}.case-sections section{gap:1rem}.project-lightbox{padding:4.5rem 1rem 1rem}.lightbox-image{max-height:calc(100vh - 5.5rem)} }
 </style>
+
+<script>
+  if (!document.documentElement.dataset.projectLightboxBound) {
+    document.documentElement.dataset.projectLightboxBound = "true";
+
+    document.addEventListener("click", (event) => {
+      const target = event.target as Element | null;
+      const trigger = target?.closest<HTMLElement>("[data-lightbox-src]");
+      const dialog = document.querySelector<HTMLDialogElement>(".project-lightbox");
+
+      if (trigger && dialog) {
+        const image = dialog.querySelector<HTMLImageElement>(".lightbox-image");
+        if (!image) return;
+        const language = document.documentElement.lang === "en" ? "en" : "fr";
+        image.src = trigger.dataset.lightboxSrc || "";
+        image.alt = language === "en"
+          ? trigger.dataset.lightboxAltEn || ""
+          : trigger.dataset.lightboxAltFr || "";
+        dialog.showModal();
+        return;
+      }
+
+      if (target?.closest(".lightbox-close")) {
+        dialog?.close();
+        return;
+      }
+
+      if (target instanceof HTMLDialogElement && target.matches(".project-lightbox")) {
+        target.close();
+      }
+    });
+  }
+</script>

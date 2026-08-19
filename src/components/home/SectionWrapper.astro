@@ -1,12 +1,19 @@
 ---
 interface Props {
   id?: string;
+  backgroundTheme?: string;
+  backgroundScene?: string;
 }
 
-const { id } = Astro.props;
+const { id, backgroundTheme, backgroundScene } = Astro.props;
 ---
 
-<section {id} class="section-wrapper about-section">
+<section
+  {id}
+  class="section-wrapper about-section"
+  data-background-theme={backgroundTheme}
+  data-background-scene={backgroundScene}
+>
   <slot name="title" />
   <slot />
 </section>
@@ -14,7 +21,7 @@ const { id } = Astro.props;
   .about-section {
     padding: 15vh 5vw;
     min-height: 70vh;
-    scroll-margin-top: 4.5rem;
+    scroll-margin-top: 1.5rem;
 </style>
 
 <style is:global>

@@ -27,7 +27,7 @@ const githubUrl = undefined;
 const projectUrl = sitePath(`/projects/${slug}`);
 ---
 
-<a href={projectUrl} class="featured-project-card">
+<a href={projectUrl} class="featured-project-card" data-project-preview={slug}>
   <div class="card-content-wrapper">
     <h4 data-i18n-en={title} data-i18n-fr={titleFr}>{title}</h4>
     <p class="summary" data-i18n-en={homepageSummary} data-i18n-fr={homepageSummaryFr}>{homepageSummary}</p>

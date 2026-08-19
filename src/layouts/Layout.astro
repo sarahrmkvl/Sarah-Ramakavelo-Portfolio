@@ -9,8 +9,17 @@ import { profile, sitePath } from "../data/profile";
 interface Props {
   title?: string;
   showIndicatorOverride?: boolean;
+  backgroundTheme?: string;
+  backgroundScene?: string;
+  backgroundProjectId?: string;
 }
-const { title, showIndicatorOverride } = Astro.props;
+const {
+  title,
+  showIndicatorOverride,
+  backgroundTheme = "green",
+  backgroundScene = "origin",
+  backgroundProjectId = "",
+} = Astro.props;
 
 const pageTitle = title === "Homepage" || !title
   ? `${profile.identity.fullName} | Finance & Markets`
@@ -129,6 +138,7 @@ const showScrollIndicator =
         margin: 0;
         width: 100%;
         height: 100%;
+        background-color: var(--bg-color);
         font-family: var(--font-family-serif);
         color: var(--text-color);
         transition:
@@ -350,8 +360,137 @@ const showScrollIndicator =
 
       document.addEventListener("astro:page-load", checkAndApplyTheme);
     </script>
+    <script>
+      let removeBackgroundThemeTracking: (() => void) | null = null;
+
+      function setBackgroundState(
+        theme: string,
+        scene: string,
+        projectId = ""
+      ) {
+        if (!theme || !scene) {
+          return;
+        }
+
+        const themeChanged =
+          document.documentElement.dataset.backgroundTheme !== theme;
+        const sceneChanged =
+          document.documentElement.dataset.backgroundScene !== scene;
+        const projectChanged =
+          (document.documentElement.dataset.backgroundProject || "") !== projectId;
+        if (!themeChanged && !sceneChanged && !projectChanged) return;
+
+        document.documentElement.dataset.backgroundTheme = theme;
+        document.documentElement.dataset.backgroundScene = scene;
+        document.documentElement.dataset.backgroundProject = projectId;
+        document.body.dataset.backgroundTheme = theme;
+        document.body.dataset.backgroundScene = scene;
+        document.body.dataset.backgroundProject = projectId;
+        document.dispatchEvent(
+          new CustomEvent("portfolio:background-theme", {
+            detail: { theme, scene, projectId },
+          })
+        );
+      }
+
+      function setupBackgroundThemeTracking() {
+        removeBackgroundThemeTracking?.();
+
+        const pageWrapper = document.querySelector<HTMLElement>(".page-wrapper");
+        const themedSections = Array.from(
+          document.querySelectorAll<HTMLElement>("[data-background-theme]")
+        ).filter((element) => element !== document.body);
+        const routeTheme = document.body.dataset.backgroundTheme || "green";
+        const routeScene = document.body.dataset.backgroundScene || "page";
+        const routeProjectId =
+          document.body.dataset.backgroundProject || "";
+
+        if (!pageWrapper || themedSections.length === 0) {
+          setBackgroundState(routeTheme, routeScene, routeProjectId);
+          removeBackgroundThemeTracking = null;
+          return;
+        }
+
+        let frameId: number | null = null;
+        const updateTheme = () => {
+          frameId = null;
+          const focusLine = window.innerHeight * 0.46;
+          const sectionStates = themedSections.map((section) => {
+            const rect = section.getBoundingClientRect();
+            return { section, center: rect.top + rect.height / 2 };
+          });
+          let fromState = sectionStates[0];
+          let toState = sectionStates[0];
+          let progress = 0;
+
+          let settledIndex = 0;
+          sectionStates.forEach((state, index) => {
+            const rect = state.section.getBoundingClientRect();
+            if (rect.top <= focusLine) settledIndex = index;
+          });
+          fromState = sectionStates[settledIndex];
+          toState = fromState;
+
+          const nextState = sectionStates[settledIndex + 1];
+          if (nextState) {
+            const nextTop = nextState.section.getBoundingClientRect().top;
+            const transitionStart = window.innerHeight * 0.84;
+            if (nextTop < transitionStart) {
+              toState = nextState;
+              progress = Math.max(
+                0,
+                Math.min(1, (transitionStart - nextTop) / (transitionStart - focusLine))
+              );
+            }
+          }
+
+          const activeSection = progress >= 0.5
+            ? toState.section
+            : fromState.section;
+
+          setBackgroundState(
+            activeSection.dataset.backgroundTheme || routeTheme,
+            activeSection.dataset.backgroundScene || routeScene,
+            routeProjectId
+          );
+          document.dispatchEvent(
+            new CustomEvent("portfolio:background-progress", {
+              detail: {
+                fromScene: fromState.section.dataset.backgroundScene || routeScene,
+                toScene: toState.section.dataset.backgroundScene || routeScene,
+                progress,
+              },
+            })
+          );
+        };
+
+        const requestThemeUpdate = () => {
+          if (frameId === null) {
+            frameId = requestAnimationFrame(updateTheme);
+          }
+        };
+
+        pageWrapper.addEventListener("scroll", requestThemeUpdate, {
+          passive: true,
+        });
+        window.addEventListener("resize", requestThemeUpdate, { passive: true });
+        updateTheme();
+
+        removeBackgroundThemeTracking = () => {
+          pageWrapper.removeEventListener("scroll", requestThemeUpdate);
+          window.removeEventListener("resize", requestThemeUpdate);
+          if (frameId !== null) cancelAnimationFrame(frameId);
+        };
+      }
+
+      document.addEventListener("astro:page-load", setupBackgroundThemeTracking);
+    </script>
   </head>
-  <body>
+  <body
+    data-background-theme={backgroundTheme}
+    data-background-scene={backgroundScene}
+    data-background-project={backgroundProjectId}
+  >
     <div class="page-wrapper">
       <DynamicBackground />
       <Header />

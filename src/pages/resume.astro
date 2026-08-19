@@ -11,7 +11,7 @@ const skillGroups = [
 const cvUrl = profile.contact.cvUrl ? sitePath(profile.contact.cvUrl) : null;
 ---
 
-<SubPageLayout title="Résumé">
+<SubPageLayout title="Résumé" backgroundTheme="white">
   {cvUrl && <Button href={cvUrl} text="Télécharger le CV" download="CV-Sarah-Ramakavelo.pdf" icon="↓" />}
 
   <div class="resume-grid">
