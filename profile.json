@@ -25,8 +25,23 @@
   "positioning": {
     "fr": {
       "eyebrow": "Au-delà du CV",
-      "headline": "J’ai traversé les chiffres pour entendre le monde,\nCherchant sous les bilans une rumeur profonde.\n\nLe hasard, vieux Cyclope, épiait mon passage,\nD’un œil — c’était assez — pour mesurer l’ouvrage.\n\nJe n’ai volé nul pain pour conquérir ma place,\nJ’ai seulement couru, nagé, codé sans grâce.\n\nPuis l’avenir s’ouvrit sans donner ses raisons,\nMadagascar nourrit mon goût des horizons.\n\nMes parents ont choisi les monts avec audace,\nLe ski répondit par son silence de glace.",
-      "summary": "Voici donc mon parcours — encore à ses débuts.",
+      "headline": [
+        "J’ai traversé les chiffres pour entendre le monde,",
+        "Cherchant sous les bilans une rumeur profonde.",
+        "",
+        "Le hasard, vieux Cyclope, épiait mon passage,",
+        "D’un œil — c’était assez — pour mesurer l’ouvrage.",
+        "",
+        "Je n’ai volé nul pain pour conquérir ma place,",
+        "J’ai seulement couru, nagé, codé sans grâce.",
+        "",
+        "Puis l’avenir s’ouvrit sans donner ses raisons,",
+        "Madagascar nourrit mon goût des horizons.",
+        "",
+        "Mes parents ont choisi les monts avec audace,",
+        "Le ski répondit par son silence de glace."
+      ],
+      "summary": "Voici donc mon parcours — encore à ses débuts."
       "availability": "Ouverte aux opportunités internationales en Global Markets."
     },
     "en": {
@@ -91,8 +106,18 @@
           "en": "Madagascar"
         },
         "text": {
-          "fr": "L’île rouge, ses baobabs et des racines ouvertes sur le monde",
-          "en": "The red island, its baobabs and roots open to the world"
+          "fr": "[
+      "Madagascar au cœur, mes parents sont partis,",
+      "Pour m’offrir un ailleurs où j’ai depuis grandi.",
+      "Leurs sacrifices tus ont pavé mon chemin,",
+      "Pour que je puisse un jour façonner mon demain."
+    ]",
+          "en": "[
+      "With Madagascar in their hearts, my parents crossed the sea,",
+      "To give me room to grow, to dream, and to be free.",
+      "Their quiet sacrifices paved the path I take,",
+      "So I could shape tomorrow with each choice I make."
+    ]"
         }
       },
       {
