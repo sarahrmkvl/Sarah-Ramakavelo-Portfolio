@@ -68,14 +68,14 @@
   ],
   "story": {
     "fr": {
-      "eyebrow": "Devise personnelle",
-      "title": "Avancer, apprendre, recommencer — jusqu’à dépasser ce que je croyais possible.",
-      "subtitle": "Faire défiler pour découvrir mon parcours"
+      "eyebrow": "",
+      "title": "Le plus souvent, ce n’est pas le talent qui fait la différence, mais la ténacité.",
+      "subtitle": "— Roger Federer, discours de Dartmouth, 2024"
     },
     "en": {
-      "eyebrow": "Personal motto",
-      "title": "Move forward, learn, begin again — until I go beyond what I thought was possible.",
-      "subtitle": "Scroll to discover my journey"
+      "eyebrow": "",
+      "title": " “Most of the time, it’s not about having a gift. It’s about having grit.”",
+      "subtitle": "— Roger Federer, discours de Dartmouth, 2024"
     },
     "cards": [
       {
@@ -114,19 +114,19 @@
       },
       {
         "id": "TRIATHLON",
-        "icon": "70.3",
+        "icon": "IRONMAN 70.3",
         "theme": "sport",
         "kicker": {
-          "fr": "Endurance",
-          "en": "Endurance"
+          "fr": "Julie Moss, ou l’art d’avancer lorsque le corps renonce, mais que la volonté refuse d’abandonner — Championnat du monde IRONMAN, Kona, Hawaï, 1982.",
+          "en": "Julie Moss — when the body gave up, her will carried her forward. World Championship IRONMAN, Hawaii, 1982."
         },
         "title": {
-          "fr": "Du lac au semi-marathon",
+          "fr": "Du dixième Espoir Français Féminin du semi-marathon - Boulogne-Billancourt, 2025; au Olympique Triathlon International de Cannes ",
           "en": "From the lake to the half-marathon"
         },
         "text": {
-          "fr": "Nager, rouler, courir · 4 à 6 séances par semaine",
-          "en": "Swim, ride, run · 4 to 6 sessions every week"
+          "fr": "Nager, rouler, courir - Nice Triathlon Club - 4 à 6 séances par semaine",
+          "en": "Swim, ride, run - Nice Triathlon Club - 4 to 6 sessions every week"
         }
       },
       {
