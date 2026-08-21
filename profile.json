@@ -1,261 +1,19 @@
 {
-  "schemaVersion": "1.1",
+  "schemaVersion": "1.0",
   "profileType": "public-recruiter-portfolio",
   "lastUpdated": "2026-08-21",
-  "designSystem": {
-    "name": "Sarah Constellation",
-    "theme": "dark",
-    "inspiration": {
-      "name": "Your workplace has the answer. Just ask Dala for it.",
-      "sourceUrl": "https://styles.refero.design/style/e5f5f8cf-e68d-4ed1-bbf5-6b67569af648",
-      "adaptation": {
-        "fr": "Une constellation personnelle reliant Madagascar, les Alpes, le triathlon et la finance sur une scène noire, lumineuse et très épurée.",
-        "en": "A personal constellation connecting Madagascar, the Alps, triathlon and finance on a luminous, highly restrained black stage."
-      }
-    },
-    "principles": [
-      "Pure black is an active canvas, not a fallback background.",
-      "Scale, whitespace and motion create hierarchy; cards and shadows do not.",
-      "Electric Iris is reserved for primary actions and active states.",
-      "Saffron Spark highlights effort, progress and key narrative moments.",
-      "Personal colors appear inside particle visualizations, not across the interface chrome.",
-      "One principal visual and one principal action maximum per viewport."
-    ],
-    "colors": {
-      "canvas": {
-        "void": "#000000"
-      },
-      "text": {
-        "primary": "#ffffff",
-        "secondary": "#bdbdbd",
-        "muted": "#9a9a9a"
-      },
-      "accent": {
-        "primary": "#8052ff",
-        "highlight": "#ffb829",
-        "secondary": "#15846e"
-      },
-      "particles": {
-        "madagascarClay": "#d45b3e",
-        "niceSea": "#2f9fe5",
-        "alpineIce": "#b9e8ff",
-        "enduranceAmber": "#ffb829",
-        "financeIris": "#8052ff",
-        "growthVerdant": "#15846e",
-        "voiceMagenta": "#d95cff"
-      }
-    },
-    "typography": {
-      "fontFamily": "PP Neue Montreal, Inter, ui-sans-serif, system-ui, sans-serif",
-      "display": {
-        "weight": 400,
-        "desktopSize": "clamp(4.875rem, 8vw, 7.0625rem)",
-        "mobileSize": "clamp(3rem, 14vw, 4.875rem)",
-        "lineHeight": 0.95,
-        "letterSpacing": "-0.04em"
-      },
-      "sectionHeading": {
-        "weight": 400,
-        "size": "clamp(2.625rem, 5vw, 4.875rem)",
-        "lineHeight": 1,
-        "letterSpacing": "-0.04em"
-      },
-      "body": {
-        "weight": 200,
-        "size": "1.125rem",
-        "lineHeight": 1.5,
-        "maxWidth": "34rem"
-      },
-      "label": {
-        "weight": 600,
-        "size": "0.875rem",
-        "lineHeight": 1.2,
-        "letterSpacing": "0.025em",
-        "textTransform": "uppercase"
-      }
-    },
-    "layout": {
-      "maxWidth": "1280px",
-      "sectionMinHeight": "85vh",
-      "sectionGap": "clamp(60px, 10vw, 120px)",
-      "grid": "asymmetric two-column",
-      "desktopColumns": "minmax(0, 0.9fr) minmax(0, 1.1fr)",
-      "mobileColumns": "1fr",
-      "contentDensity": "spacious",
-      "cardPolicy": "Avoid filled cards; content floats directly on the void canvas.",
-      "mediaRadius": "24px"
-    },
-    "components": {
-      "primaryButton": {
-        "background": "#8052ff",
-        "color": "#ffffff",
-        "border": "none",
-        "borderRadius": "9999px",
-        "padding": "14px 18px",
-        "usage": "One primary action maximum per viewport."
-      },
-      "ghostLink": {
-        "background": "transparent",
-        "color": "#bdbdbd",
-        "activeColor": "#ffffff",
-        "underline": "on hover or keyboard focus only"
-      },
-      "navigation": {
-        "background": "transparent",
-        "position": "sticky",
-        "logoColor": "#8052ff",
-        "inactiveColor": "#9a9a9a",
-        "activeColor": "#ffffff"
-      },
-      "sectionHeadline": {
-        "layout": "oversized headline paired with light supporting copy",
-        "labelColor": "#ffb829",
-        "container": "none"
-      },
-      "floatingMetric": {
-        "valueColor": "#ffffff",
-        "labelColor": "#9a9a9a",
-        "accentColor": "#8052ff",
-        "border": "none",
-        "shadow": "none"
-      },
-      "storyNode": {
-        "shape": "outlined triangle",
-        "inactiveOpacity": 0.28,
-        "activeOpacity": 1,
-        "activeHalo": "0 0 24px rgba(128, 82, 255, 0.35)"
-      }
-    },
-    "motion": {
-      "style": "weightless, continuous and scroll-led",
-      "duration": {
-        "micro": "180ms",
-        "section": "700ms",
-        "constellationMorph": "1400ms"
-      },
-      "easing": "cubic-bezier(0.22, 1, 0.36, 1)",
-      "particleDrift": {
-        "speed": "slow",
-        "amplitude": "6-18px",
-        "pointerInfluence": "subtle repulsion within 120px"
-      },
-      "scrollBehaviour": [
-        "Fade ambient particles in before text enters.",
-        "Connect active narrative nodes progressively as the user scrolls.",
-        "Morph the hero constellation between personal chapters without abrupt cuts.",
-        "Keep essential content readable before animation completes."
-      ],
-      "reducedMotion": "Replace particle drift and morphing with static constellations and opacity transitions below 200ms."
-    },
-    "accessibility": {
-      "minimumTextContrast": "WCAG AA",
-      "focusStyle": "2px solid #ffb829 with 3px offset",
-      "canvasFallback": "Every visualization must include an equivalent text summary.",
-      "interaction": "All hover interactions must also work with keyboard focus and touch.",
-      "decorativeParticles": "aria-hidden=true"
-    }
-  },
-  "visualizations": [
-    {
-      "id": "hero-constellation",
-      "type": "animated-particle-constellation",
-      "placement": "positioning hero · right column",
-      "dataSources": ["identity", "story.cards", "highlights"],
-      "concept": {
-        "fr": "Une île de Madagascar composée de particules se déploie en trajectoire ascendante, puis devient crête alpine. Les points violets incarnent la finance, les points ambre l’endurance et les points verts l’apprentissage.",
-        "en": "A particle-built Madagascar silhouette unfolds into an ascending trail and then an Alpine ridge. Violet points represent finance, amber points endurance and green points learning."
-      },
-      "visualRules": {
-        "background": "#000000",
-        "particleShape": "outlined triangle",
-        "particleSize": "1-3px",
-        "particleCountDesktop": "900-1400",
-        "particleCountMobile": "280-450",
-        "ambientDensity": "low",
-        "primaryColors": ["#8052ff", "#ffb829", "#15846e", "#d45b3e", "#b9e8ff"]
-      },
-      "states": [
-        { "id": "roots", "shape": "Madagascar silhouette", "sourceId": "MADAGASCAR" },
-        { "id": "movement", "shape": "swim-bike-run trajectory", "sourceId": "TRIATHLON" },
-        { "id": "markets", "shape": "rising analytical curve", "sourceId": "societe-generale-cib" },
-        { "id": "summit", "shape": "Alpine ridge", "sourceId": "GENEVA" }
-      ],
-      "interaction": "Morph between states according to hero progress and the first story-card entries; pointer movement creates gentle depth only.",
-      "textAlternative": {
-        "fr": "De Madagascar aux Alpes, une trajectoire relie endurance, apprentissage et marchés financiers.",
-        "en": "From Madagascar to the Alps, one trajectory connects endurance, learning and financial markets."
-      }
-    },
-    {
-      "id": "journey-constellation",
-      "type": "scroll-network-graph",
-      "placement": "story",
-      "dataSources": ["story.cards"],
-      "nodes": [
-        { "sourceId": "MADAGASCAR", "color": "#d45b3e" },
-        { "sourceId": "NICE", "color": "#2f9fe5" },
-        { "sourceId": "TRIATHLON", "color": "#ffb829" },
-        { "sourceId": "GENEVA", "color": "#b9e8ff" },
-        { "sourceId": "VERSAILLES", "color": "#8052ff" },
-        { "sourceId": "competition", "color": "#ffb829" },
-        { "sourceId": "public-speaking", "color": "#d95cff" },
-        { "sourceId": "travel", "color": "#15846e" }
-      ],
-      "edgeStyle": {
-        "color": "rgba(255,255,255,0.18)",
-        "activeColor": "#8052ff",
-        "width": "1px",
-        "drawOnScroll": true
-      },
-      "interaction": "The active node expands, reveals its bilingual copy and softly repels nearby ambient particles.",
-      "mobileBehaviour": "Transform the graph into a vertical connected timeline while preserving colors and node order."
-    },
-    {
-      "id": "career-constellation",
-      "type": "connected-timeline",
-      "placement": "experience",
-      "dataSources": ["experience", "highlights"],
-      "visualEncoding": {
-        "x": "chronology",
-        "nodeSize": "number of bullet points, used only for visual balance",
-        "nodeColor": "#8052ff for current experience; #9a9a9a for previous experiences",
-        "milestones": "highlight values float near the relevant narrative, without inventing links not present in the data"
-      },
-      "interaction": "Selecting a node reveals role, location, dates and bullet points in a borderless adjacent text block.",
-      "annotationColor": "#ffb829"
-    },
-    {
-      "id": "triathlon-orbits",
-      "type": "three-discipline-orbit",
-      "placement": "activities · triathlon",
-      "dataSources": ["activities[id=triathlon]"],
-      "disciplines": [
-        { "id": "swim", "label": { "fr": "Natation", "en": "Swim" }, "color": "#2f9fe5", "symbol": "≈" },
-        { "id": "bike", "label": { "fr": "Vélo", "en": "Bike" }, "color": "#8052ff", "symbol": "○" },
-        { "id": "run", "label": { "fr": "Course", "en": "Run" }, "color": "#ffb829", "symbol": "↗" }
-      ],
-      "interaction": "Scroll rotates emphasis from swim to bike to run; the three paths finally merge into one finish-line trajectory.",
-      "dataPolicy": "Do not display invented distances, times or percentages. Use only values present elsewhere in the profile."
-    },
-    {
-      "id": "skills-particle-map",
-      "type": "clustered-particle-map",
-      "placement": "skills",
-      "dataSources": ["skills.finance", "skills.technical", "skills.languages"],
-      "clusters": [
-        { "source": "skills.finance", "color": "#8052ff", "label": { "fr": "Finance", "en": "Finance" } },
-        { "source": "skills.technical", "color": "#15846e", "label": { "fr": "Outils", "en": "Tools" } },
-        { "source": "skills.languages", "color": "#ffb829", "label": { "fr": "Langues", "en": "Languages" } }
-      ],
-      "interaction": "Hover, focus or tap expands one cluster into readable labels; labels collapse back into particles on exit.",
-      "fallback": "Render the existing skills lists when canvas or WebGL is unavailable."
-    }
-  ],
   "identity": {
     "fullName": "Sarah Ramakavelo",
     "initials": "SR",
-    "basedIn": ["Geneva", "Paris", "Nice"],
-    "nationalityOrOrigins": ["France", "Madagascar"],
+    "basedIn": [
+      "Geneva",
+      "Paris",
+      "Nice"
+    ],
+    "nationalityOrOrigins": [
+      "France",
+      "Madagascar"
+    ],
     "photo": null
   },
   "contact": {
@@ -267,45 +25,17 @@
   "positioning": {
     "fr": {
       "eyebrow": "Au-delà du CV",
-      "headline": [
-        "J’ai traversé les chiffres pour entendre le monde,",
-        "Cherchant sous les bilans une rumeur profonde.",
-        "",
-        "Le hasard, vieux Cyclope, épiait mon passage,",
-        "D’un œil — c’était assez — pour mesurer l’ouvrage.",
-        "",
-        "Je n’ai volé nul pain pour conquérir ma place,",
-        "J’ai seulement couru, nagé, codé sans grâce.",
-        "",
-        "Puis l’avenir s’ouvrit sans donner ses raisons,",
-        "Madagascar nourrit mon goût des horizons.",
-        "",
-        "Mes parents ont choisi les monts avec audace,",
-        "Le ski répondit par son silence de glace."
-      ],
-      "summary": "Voici donc mon parcours — encore à ses débuts."
+      "headline": "J’ai traversé les chiffres pour entendre le monde,\nCherchant sous les bilans une rumeur profonde.\n\nLe hasard, vieux Cyclope, épiait mon passage,\nD’un œil — c’était assez — pour mesurer l’ouvrage.\n\nJe n’ai volé nul pain pour conquérir ma place,\nJ’ai seulement couru, nagé, codé sans grâce.\n\nPuis l’avenir s’ouvrit sans donner ses raisons,\nMadagascar nourrit mon goût des horizons.\n\nMes parents ont choisi les monts avec audace,\nLe ski répondit par son silence de glace.",
+      "summary": "Voici donc mon parcours — encore à ses débuts.",
+      "availability": "Ouverte aux opportunités internationales en Global Markets."
     },
     "en": {
       "eyebrow": "Beyond CV",
-      "headline": [
-        "I crossed the halls of numbers to hear the world speak,",
-        "Beneath the balance sheets, I sought its murmurs deep.",
-        "",
-        "Chance, the old Cyclops, watched me passing on my way;",
-        "One eye — and that was plenty — appraised the work that day.",
-        "",
-        "I stole no loaf of bread to earn myself a place;",
-        "I ran, I swam, I coded — seldom blessed with grace.",
-        "",
-        "Then future opened wide, but never told me why;",
-        "Madagascar taught my eyes to seek broader skies.",
-        "",
-        "My parents chose the peaks, as daring parents would;",
-        "Skiing answered in silence, as only ice could."
-      ],
-      "summary": "Let me tell you the story of my journey so far — still in its early chapters."
+      "headline": "I crossed the halls of numbers to hear the world speak,\nBeneath the balance sheets, I sought its murmurs deep.\n\nChance, the old Cyclops, watched me passing on my way;\nOne eye — and that was plenty — appraised the work that day.\n\nI stole no loaf of bread to earn myself a place;\nI ran, I swam, I coded — seldom blessed with grace.\n\nThen future opened wide, but never told me why;\nMadagascar taught my eyes to seek broader skies.\n\nMy parents chose the peaks, as daring parents would;\nSkiing answered in silence, as only ice could.",
+      "summary": "Let me tell you the story of my journey so far — still in its early chapters.",
+      "availability": "Open to international opportunities in Global Markets."
     }
-  }
+  },
   "highlights": [
     {
       "value": "€15bn+",
@@ -352,8 +82,14 @@
         "id": "MADAGASCAR",
         "icon": "🇲🇬",
         "theme": "clay",
-        "kicker": { "fr": "Racines", "en": "Roots" },
-        "title": { "fr": "Madagascar", "en": "Madagascar" },
+        "kicker": {
+          "fr": "Racines",
+          "en": "Roots"
+        },
+        "title": {
+          "fr": "Madagascar",
+          "en": "Madagascar"
+        },
         "text": {
           "fr": "L’île rouge, ses baobabs et des racines ouvertes sur le monde",
           "en": "The red island, its baobabs and roots open to the world"
@@ -363,8 +99,14 @@
         "id": "NICE",
         "icon": "NCE",
         "theme": "sea",
-        "kicker": { "fr": "Point d’ancrage", "en": "Home base" },
-        "title": { "fr": "Nice", "en": "Nice" },
+        "kicker": {
+          "fr": "Point d’ancrage",
+          "en": "Home base"
+        },
+        "title": {
+          "fr": "Nice",
+          "en": "Nice"
+        },
         "text": {
           "fr": "Mer · soleil · études · entraînements",
           "en": "Sea · sun · studies · training"
@@ -374,10 +116,16 @@
         "id": "TRIATHLON",
         "icon": "70.3",
         "theme": "sport",
-        "kicker": { "fr": "Endurance", "en": "Endurance" },
-        "title": { "fr": "Du lac au semi-marathon", "en": "From the lake to the half-marathon" },
+        "kicker": {
+          "fr": "Endurance",
+          "en": "Endurance"
+        },
+        "title": {
+          "fr": "Du lac au semi-marathon",
+          "en": "From the lake to the half-marathon"
+        },
         "text": {
-          "fr": "Nager, rouler, courser · 4 à 6 séances par semaine",
+          "fr": "Nager, rouler, courir · 4 à 6 séances par semaine",
           "en": "Swim, ride, run · 4 to 6 sessions every week"
         }
       },
@@ -385,8 +133,14 @@
         "id": "GENEVA",
         "icon": "△ ≈",
         "theme": "alpine",
-        "kicker": { "fr": "Étape suisse", "en": "Swiss chapter" },
-        "title": { "fr": "Genève en mouvement", "en": "Geneva in motion" },
+        "kicker": {
+          "fr": "Étape suisse",
+          "en": "Swiss chapter"
+        },
+        "title": {
+          "fr": "Genève en mouvement",
+          "en": "Geneva in motion"
+        },
         "text": {
           "fr": "Le lac vu depuis les pistes · les Alpes · Syz Bank",
           "en": "The lake seen from the slopes · the Alps · Syz Bank"
@@ -396,8 +150,14 @@
         "id": "VERSAILLES",
         "icon": "CPGE",
         "theme": "ink",
-        "kicker": { "fr": "2022 — 2024", "en": "2022 — 2024" },
-        "title": { "fr": "Prépa Mathématiques et Géopolitique", "en": "Prepa in Mathematics and Geopolitics" },
+        "kicker": {
+          "fr": "2022 — 2024",
+          "en": "2022 — 2024"
+        },
+        "title": {
+          "fr": "Prépa Mathématiques et Géopolitique",
+          "en": "Prepa in Mathematics and Geopolitics"
+        },
         "text": {
           "fr": "Entre le théorème de Lagrange · exigence et méthode",
           "en": "Between Lagrange’s theorem · rigour and method"
@@ -407,8 +167,14 @@
         "id": "competition",
         "icon": "1·2·3",
         "theme": "podium",
-        "kicker": { "fr": "Compétition", "en": "Competition" },
-        "title": { "fr": "Podiums & lignes d’arrivée", "en": "Podiums & finish lines" },
+        "kicker": {
+          "fr": "Compétition",
+          "en": "Competition"
+        },
+        "title": {
+          "fr": "Podiums & lignes d’arrivée",
+          "en": "Podiums & finish lines"
+        },
         "text": {
           "fr": "Le résultat visible de kilomètres et d’efforts invisibles",
           "en": "The visible result of invisible miles and effort"
@@ -418,8 +184,14 @@
         "id": "public-speaking",
         "icon": "“ ”",
         "theme": "voice",
-        "kicker": { "fr": "Éloquence · MUN", "en": "Public speaking · MUN" },
-        "title": { "fr": "Concours d’éloquence", "en": "Public speaking" },
+        "kicker": {
+          "fr": "Éloquence · MUN",
+          "en": "Public speaking · MUN"
+        },
+        "title": {
+          "fr": "Concours d’éloquence",
+          "en": "Public speaking"
+        },
         "text": {
           "fr": "Monter sur scène · défendre une idée · convaincre un public",
           "en": "Step on stage · defend an idea · persuade an audience"
@@ -429,8 +201,14 @@
         "id": "travel",
         "icon": "↗",
         "theme": "travel",
-        "kicker": { "fr": "Carnet de route", "en": "Travel notes" },
-        "title": { "fr": "🇲🇬 🇫🇷 🇨🇭", "en": "🇲🇬 🇫🇷 🇨🇭" },
+        "kicker": {
+          "fr": "Carnet de route",
+          "en": "Travel notes"
+        },
+        "title": {
+          "fr": "🇲🇬 🇫🇷 🇨🇭",
+          "en": "🇲🇬 🇫🇷 🇨🇭"
+        },
         "text": {
           "fr": "Des lieux qui deviennent des perspectives",
           "en": "Places that become perspectives"
@@ -468,7 +246,14 @@
           "Prepared client presentations on OTC Clearing, Repo Clearing and financing."
         ]
       },
-      "tags": ["Prime Brokerage", "ETD", "OTC", "Risk", "Clearing", "Client Coverage"]
+      "tags": [
+        "Prime Brokerage",
+        "ETD",
+        "OTC",
+        "Risk",
+        "Clearing",
+        "Client Coverage"
+      ]
     },
     {
       "id": "syz-bank",
@@ -497,7 +282,11 @@
           "Worked in an international and entrepreneurial banking environment."
         ]
       },
-      "tags": ["Digital Assets", "Front Office", "Business Transformation"]
+      "tags": [
+        "Digital Assets",
+        "Front Office",
+        "Business Transformation"
+      ]
     },
     {
       "id": "hsbc-discovery",
@@ -526,7 +315,11 @@
           "Developed an understanding of client communication in a fast-moving environment."
         ]
       },
-      "tags": ["Global Markets", "Sales & Trading", "Institutional Clients"]
+      "tags": [
+        "Global Markets",
+        "Sales & Trading",
+        "Institutional Clients"
+      ]
     }
   ],
   "education": [
@@ -594,9 +387,18 @@
       "IRIS"
     ],
     "languages": [
-      { "language": "French", "level": "Native" },
-      { "language": "English", "level": "C1 Advanced · Cambridge" },
-      { "language": "German", "level": "Basic" }
+      {
+        "language": "French",
+        "level": "Native"
+      },
+      {
+        "language": "English",
+        "level": "C1 Advanced · Cambridge"
+      },
+      {
+        "language": "German",
+        "level": "Basic"
+      }
     ]
   },
   "activities": [
@@ -611,7 +413,10 @@
         "fr": "Préparation longue distance, triathlons olympiques et semi-marathons. Le sport développe la discipline, la constance et le calme sous pression.",
         "en": "Long-distance training, Olympic-distance triathlons and half-marathons. Sport develops discipline, consistency and calm under pressure."
       },
-      "organisations": ["Nice Triathlon Club", "EDHEC Triathlon Club"]
+      "organisations": [
+        "Nice Triathlon Club",
+        "EDHEC Triathlon Club"
+      ]
     },
     {
       "id": "model-united-nations",
@@ -649,9 +454,33 @@
     }
   },
   "navigation": [
-    { "id": "experience", "label": { "fr": "Expérience", "en": "Experience" } },
-    { "id": "projects", "label": { "fr": "Projets", "en": "Projects" } },
-    { "id": "market-notes", "label": { "fr": "Market Notes", "en": "Market Notes" } },
-    { "id": "beyond", "label": { "fr": "Au-delà du CV", "en": "Beyond the CV" } }
+    {
+      "id": "experience",
+      "label": {
+        "fr": "Expérience",
+        "en": "Experience"
+      }
+    },
+    {
+      "id": "projects",
+      "label": {
+        "fr": "Projets",
+        "en": "Projects"
+      }
+    },
+    {
+      "id": "market-notes",
+      "label": {
+        "fr": "Market Notes",
+        "en": "Market Notes"
+      }
+    },
+    {
+      "id": "beyond",
+      "label": {
+        "fr": "Au-delà du CV",
+        "en": "Beyond the CV"
+      }
+    }
   ]
 }
